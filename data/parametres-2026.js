@@ -21,21 +21,36 @@ const PARAMETRES_PAC_2026 = {
         }
     },
 
+ecoregime: {
 
-    ecoregime: {
+    niveauBase2026: null,
+    niveauSuperieur2026: null,
+    niveauBio2026: null,
+    bonusHaies2026: null,
 
-        niveauBase2026: null,
-        niveauSuperieur2026: null,
-        niveauBio2026: null,
-        bonusHaies2026: null,
+    reference2024: {
 
-        reference2024: {
-            niveauSuperieur: 66.17
-        },
+        // Le PDF contient deux valeurs différentes
+        // pour le niveau de base :
+        // 48,23 €/ha dans la fiche synthétique
+        // 48,35 €/ha dans l'annexe 6.
+        //
+        // On ne tranche donc pas automatiquement.
+        niveauBase: null,
 
-        note:
-            "Les montants sont calculés annuellement. Ne pas utiliser automatiquement les valeurs 2024 comme montants 2026."
+        niveauBaseFicheSynthese: 48.23,
+        niveauBaseAnnexe6: 48.35,
+
+        niveauSuperieur: 66.17,
+
+        niveauBio: 96.17,
+
+        bonusHaies: 7.00
     },
+
+    note:
+        "Les montants sont calculés annuellement. Ne pas utiliser automatiquement les valeurs 2024 comme montants 2026."
+},
 
 
     aideRedistributive: {
