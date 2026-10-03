@@ -1,1 +1,190 @@
+<!DOCTYPE html>
 
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Assistant aides PAC
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<header class="topbar">
+
+    <div class="topbar-inner">
+
+        <a
+            class="brand"
+            href="#"
+        >
+            Assistant PAC
+        </a>
+
+        <span class="campaign">
+            Campagne 2026
+        </span>
+
+    </div>
+
+</header>
+
+
+<main class="page">
+
+
+    <section class="hero">
+
+        <span class="eyebrow">
+            ASSISTANT & SIMULATEUR
+        </span>
+
+        <h1>
+            Quelles aides PAC
+            correspondent à votre exploitation ?
+        </h1>
+
+        <p>
+            Décrivez votre exploitation.
+            L'outil identifie les principales aides
+            à examiner et estime les montants lorsque
+            les données disponibles le permettent.
+        </p>
+
+    </section>
+
+
+
+    <section
+        id="questionnaire-card"
+        class="questionnaire-card"
+    >
+
+
+        <div class="progress-header">
+
+            <span id="step-counter">
+                Étape 1
+            </span>
+
+        </div>
+
+
+        <div class="progress-track">
+
+            <div
+                id="progress-bar"
+                class="progress-bar"
+            ></div>
+
+        </div>
+
+
+        <div class="question-header">
+
+            <h2 id="question-title"></h2>
+
+            <p id="question-subtitle"></p>
+
+        </div>
+
+
+        <div
+            id="questions-container"
+            class="questions-container"
+        ></div>
+
+
+        <div class="question-navigation">
+
+            <button
+                id="previous-button"
+                type="button"
+                class="secondary-button"
+            >
+                Précédent
+            </button>
+
+
+            <button
+                id="next-button"
+                type="button"
+                class="primary-button"
+            >
+                Continuer
+            </button>
+
+        </div>
+
+
+    </section>
+
+
+
+    <section
+        id="results"
+        class="results"
+        style="display:none"
+    ></section>
+
+
+
+    <section class="disclaimer">
+
+        <strong>
+            À savoir
+        </strong>
+
+        <p>
+            Cet outil fournit une orientation à partir
+            des informations saisies et du guide
+            PAC 2023-2027 utilisé comme référence.
+            Il ne constitue pas une décision
+            administrative d'éligibilité.
+        </p>
+
+        <p>
+            Les informations sont conservées
+            localement dans votre navigateur.
+        </p>
+
+    </section>
+
+
+</main>
+
+
+<script src="data/aides.js"></script>
+
+<script src="data/parametres-2026.js"></script>
+
+<script src="modules/profil.js"></script>
+
+<script src="modules/eligibility.js"></script>
+
+<script src="modules/calcul.js"></script>
+
+<script src="modules/questionnaire.js"></script>
+
+<script src="script.js"></script>
+
+
+</body>
+
+</html>
