@@ -751,4 +751,130 @@ const AIDES_PAC = [
     }
 }
 
+   /* =====================================================
+   ICHN ANIMALE
+===================================================== */
+
+{
+    id: "ichn_animale",
+
+    nom:
+        "ICHN animale",
+
+    categorie:
+        "Développement rural",
+
+    pilier: 2,
+
+    description:
+        "Indemnité compensatoire de handicaps naturels pour les surfaces fourragères situées en zone défavorisée.",
+
+    conditionsPrincipales: [
+
+        "Être agriculteur actif",
+
+        "Exploiter des surfaces admissibles situées en zone défavorisée",
+
+        "Exploiter au moins 3 ha de surface fourragère en zone défavorisée",
+
+        "Détenir au moins 5 UGB",
+
+        "Respecter les conditions relatives à la part de revenu agricole",
+
+        "Respecter les conditions de chargement applicables à la sous-zone"
+    ],
+
+    donneesNecessaires: [
+
+        "agriculteurActif",
+
+        "zoneICHN",
+
+        "pourcentageSAUZoneDefavorisee",
+
+        "surfaceFourragereICHN",
+
+        "ugb",
+
+        "revenuAgricole",
+
+        "siegeExploitation"
+    ],
+
+    calculable:
+        "partiellement",
+
+    source: {
+
+        document:
+            "PAC 2023-2027 – version avril 2026",
+
+        annexe:
+            "Annexe 9 – ICHN",
+
+        pages:
+            "77 à 80"
+    }
+},
+
+
+/* =====================================================
+   ICHN VÉGÉTALE
+===================================================== */
+
+{
+    id: "ichn_vegetale",
+
+    nom:
+        "ICHN végétale",
+
+    categorie:
+        "Développement rural",
+
+    pilier: 2,
+
+    description:
+        "Indemnité compensatoire de handicaps naturels pour certaines cultures de vente situées en zone de montagne.",
+
+    conditionsPrincipales: [
+
+        "Être agriculteur actif",
+
+        "Exploiter des surfaces admissibles en zone de montagne ou haute montagne",
+
+        "Exploiter au moins 1 ha de cultures de vente éligibles",
+
+        "Respecter les conditions générales de l'ICHN"
+    ],
+
+    donneesNecessaires: [
+
+        "agriculteurActif",
+
+        "zoneICHN",
+
+        "surfaceCulturesVente",
+
+        "pourcentageSAUZoneDefavorisee",
+
+        "revenuAgricole",
+
+        "zoneSeche"
+    ],
+
+    calculable: true,
+
+    source: {
+
+        document:
+            "PAC 2023-2027 – version avril 2026",
+
+        annexe:
+            "Annexe 9 – ICHN",
+
+        pages:
+            "77 à 80"
+    }
+}
+
 ];
