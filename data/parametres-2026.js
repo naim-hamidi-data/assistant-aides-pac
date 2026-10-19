@@ -179,4 +179,53 @@ PARAMETRES_PAC_2026.aidesCouplees = {
             reference2024: 14.56
         }
     }
+
+/* =========================================================
+   ICHN
+========================================================= */
+
+PARAMETRES_PAC_2026.ICHN = {
+
+    animale: {
+
+        // Part fixe de l'ICHN animale
+        montantBaseParHa: 70,
+
+        // Surface maximale primable
+        surfaceMaximum: 75,
+
+        // Part variable à taux plein jusqu'à 25 ha
+        trancheVariablePleine: 25,
+
+        // Part variable réduite jusqu'à 50 ha
+        trancheVariableReduiteJusqua: 50,
+
+        // Entre 25 et 50 ha :
+        // le montant variable est réduit d'un tiers
+        coefficientDeuxiemeTranche: 2 / 3
+
+    },
+
+
+    vegetale: {
+
+        // ICHN végétale uniquement
+        // en montagne / haute montagne
+
+        montantZoneSecheParHa: 297,
+
+        montantAutreZoneParHa: 35,
+
+        surfaceMaximum: 50,
+
+        premiereTranche: 25,
+
+        // Entre 25 et 50 ha :
+        // montant diminué d'un tiers
+        coefficientDeuxiemeTranche: 2 / 3
+
+    }
+
+};
+    
 };
