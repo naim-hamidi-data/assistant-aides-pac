@@ -438,6 +438,123 @@ function creerChampQuestion(question) {
     return wrapper;
 }
 
+/* =========================================================
+   NAVIGATION LATÉRALE
+========================================================= */
+
+function afficherNavigationLaterale() {
+
+    const navigation =
+        document.getElementById(
+            "sidebar-steps"
+        );
+
+
+    if (!navigation) {
+        return;
+    }
+
+
+    navigation.innerHTML = "";
+
+
+    ETAPES_QUESTIONNAIRE.forEach(
+        (etape, index) => {
+
+            const bouton =
+                document.createElement(
+                    "button"
+                );
+
+
+            bouton.type =
+                "button";
+
+
+            bouton.className =
+                "sidebar-step";
+
+
+            if (
+                index ===
+                etapeQuestionnaire
+            ) {
+
+                bouton.classList.add(
+                    "active"
+                );
+            }
+
+
+            if (
+                index <
+                etapeQuestionnaire
+            ) {
+
+                bouton.classList.add(
+                    "completed"
+                );
+            }
+
+
+            const indicateur =
+                document.createElement(
+                    "span"
+                );
+
+
+            indicateur.className =
+                "step-indicator";
+
+
+            indicateur.textContent =
+                index <
+                etapeQuestionnaire
+
+                    ? "✓"
+
+                    : index + 1;
+
+
+            const texte =
+                document.createElement(
+                    "span"
+                );
+
+
+            texte.textContent =
+                etape.titre;
+
+
+            bouton.appendChild(
+                indicateur
+            );
+
+
+            bouton.appendChild(
+                texte
+            );
+
+
+            bouton.addEventListener(
+                "click",
+                () => {
+
+                    etapeQuestionnaire =
+                        index;
+
+                    afficherEtape();
+                }
+            );
+
+
+            navigation.appendChild(
+                bouton
+            );
+        }
+    );
+}
+
 function afficherEtape() {
     const etape = ETAPES_QUESTIONNAIRE[etapeQuestionnaire];
     document.getElementById("question-title").textContent = etape.titre;
