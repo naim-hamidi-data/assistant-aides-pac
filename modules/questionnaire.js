@@ -556,6 +556,21 @@ function afficherNavigationLaterale() {
 }
 
 function afficherEtape() {
+   
+const etape =
+        ETAPES_QUESTIONNAIRE[
+            etapeQuestionnaire
+        ];
+
+
+    afficherNavigationLaterale();
+
+
+    document.getElementById(
+        "question-title"
+    ).textContent =
+        etape.titre;
+   
     const etape = ETAPES_QUESTIONNAIRE[etapeQuestionnaire];
     document.getElementById("question-title").textContent = etape.titre;
     document.getElementById("question-subtitle").textContent = etape.sousTitre;
