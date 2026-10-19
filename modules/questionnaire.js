@@ -3,6 +3,7 @@
 ========================================================= */
 
 let etapeQuestionnaire = 0;
+let affichageResultats = false;
 
 function positif(chemin) {
     return nombreOuZero(lireProfil(chemin)) > 0;
@@ -439,139 +440,81 @@ function creerChampQuestion(question) {
 }
 
 /* =========================================================
-   NAVIGATION LATÉRALE
+   NAVIGATION LATÉRALE — STYLE TELEPAC MODERNISÉ
 ========================================================= */
 
 function afficherNavigationLaterale() {
-
-    const navigation =
-        document.getElementById(
-            "sidebar-steps"
-        );
-
-
-    if (!navigation) {
-        return;
-    }
-
+    const navigation = document.getElementById("sidebar-steps");
+    if (!navigation) return;
 
     navigation.innerHTML = "";
 
+    ETAPES_QUESTIONNAIRE.forEach((etape, index) => {
+        const bouton = document.createElement("button");
+        bouton.type = "button";
+        bouton.className = "sidebar-step";
 
-    ETAPES_QUESTIONNAIRE.forEach(
-        (etape, index) => {
-
-            const bouton =
-                document.createElement(
-                    "button"
-                );
-
-
-            bouton.type =
-                "button";
-
-
-            bouton.className =
-                "sidebar-step";
-
-
-            if (
-                index ===
-                etapeQuestionnaire
-            ) {
-
-                bouton.classList.add(
-                    "active"
-                );
-            }
-
-
-            if (
-                index <
-                etapeQuestionnaire
-            ) {
-
-                bouton.classList.add(
-                    "completed"
-                );
-            }
-
-
-            const indicateur =
-                document.createElement(
-                    "span"
-                );
-
-
-            indicateur.className =
-                "step-indicator";
-
-
-            indicateur.textContent =
-                index <
-                etapeQuestionnaire
-
-                    ? "✓"
-
-                    : index + 1;
-
-
-            const texte =
-                document.createElement(
-                    "span"
-                );
-
-
-            texte.textContent =
-                etape.titre;
-
-
-            bouton.appendChild(
-                indicateur
-            );
-
-
-            bouton.appendChild(
-                texte
-            );
-
-
-            bouton.addEventListener(
-                "click",
-                () => {
-
-                    etapeQuestionnaire =
-                        index;
-
-                    afficherEtape();
-                }
-            );
-
-
-            navigation.appendChild(
-                bouton
-            );
+        if (!affichageResultats && index === etapeQuestionnaire) {
+            bouton.classList.add("active");
         }
-    );
+
+        if (affichageResultats || index < etapeQuestionnaire) {
+            bouton.classList.add("completed");
+        }
+
+        const indicateur = document.createElement("span");
+        indicateur.className = "step-indicator";
+        indicateur.textContent = (affichageResultats || index < etapeQuestionnaire) ? "✓" : String(index + 1);
+
+        const texte = document.createElement("span");
+        texte.textContent = etape.titre;
+
+        bouton.appendChild(indicateur);
+        bouton.appendChild(texte);
+
+        bouton.addEventListener("click", () => {
+            affichageResultats = false;
+            etapeQuestionnaire = index;
+
+            const questionnaire = document.getElementById("questionnaire-card");
+            const resultats = document.getElementById("results");
+            if (questionnaire) questionnaire.style.display = "block";
+            if (resultats) resultats.style.display = "none";
+
+            afficherEtape();
+        });
+
+        navigation.appendChild(bouton);
+    });
+
+    const resultat = document.createElement("button");
+    resultat.type = "button";
+    resultat.className = "sidebar-step";
+
+    if (affichageResultats) resultat.classList.add("active");
+
+    const indicateurResultat = document.createElement("span");
+    indicateurResultat.className = "step-indicator";
+    indicateurResultat.textContent = affichageResultats ? "✓" : String(ETAPES_QUESTIONNAIRE.length + 1);
+
+    const texteResultat = document.createElement("span");
+    texteResultat.textContent = "Résultats";
+
+    resultat.appendChild(indicateurResultat);
+    resultat.appendChild(texteResultat);
+
+    if (!affichageResultats) {
+        resultat.disabled = true;
+        resultat.setAttribute("aria-disabled", "true");
+    }
+
+    navigation.appendChild(resultat);
 }
 
 function afficherEtape() {
-   
-const etape =
-        ETAPES_QUESTIONNAIRE[
-            etapeQuestionnaire
-        ];
-
-
-    afficherNavigationLaterale();
-
-
-    document.getElementById(
-        "question-title"
-    ).textContent =
-        etape.titre;
-   
+    affichageResultats = false;
     const etape = ETAPES_QUESTIONNAIRE[etapeQuestionnaire];
+    afficherNavigationLaterale();
     document.getElementById("question-title").textContent = etape.titre;
     document.getElementById("question-subtitle").textContent = etape.sousTitre;
 
@@ -683,6 +626,9 @@ function afficherSynthese(zone) {
 }
 
 function afficherResultatsQuestionnaire() {
+    affichageResultats = true;
+    afficherNavigationLaterale();
+
     const questionnaire = document.getElementById("questionnaire-card");
     const zone = document.getElementById("results");
     questionnaire.style.display = "none";
@@ -698,7 +644,7 @@ function afficherResultatsQuestionnaire() {
     const header = document.createElement("div");
     header.className = "results-header";
     header.innerHTML = `
-        <span class="eyebrow">ORIENTATION PAC 2026</span>
+        <span class="context-label">ORIENTATION PAC 2026</span>
         <h2>${aExaminer.length} aide${aExaminer.length > 1 ? "s" : ""} à examiner</h2>
         <p>Orientation fondée sur les informations saisies et le guide PAC utilisé. Elle ne constitue pas une décision administrative d'éligibilité.</p>
     `;
@@ -747,8 +693,8 @@ function afficherResultatsQuestionnaire() {
     const actions = document.createElement("div");
     actions.className = "results-actions";
     actions.innerHTML = `
-        <button type="button" class="secondary-button" id="edit-results-button">Modifier mes réponses</button>
-        <button type="button" class="danger-button" id="reset-results-button">Recommencer à zéro</button>
+        <button type="button" class="button button-secondary" id="edit-results-button">Modifier mes réponses</button>
+        <button type="button" class="button button-secondary" id="reset-results-button">Recommencer à zéro</button>
     `;
     zone.appendChild(actions);
 
@@ -765,6 +711,7 @@ function afficherResultatsQuestionnaire() {
 }
 
 function recommencerQuestionnaire() {
+    affichageResultats = false;
     document.getElementById("results").style.display = "none";
     document.getElementById("questionnaire-card").style.display = "block";
     etapeQuestionnaire = 0;
@@ -773,15 +720,30 @@ function recommencerQuestionnaire() {
 
 function initialiserQuestionnaire() {
     chargerProfilLocal();
+    affichageResultats = false;
     afficherEtape();
-    document.getElementById("next-button").addEventListener("click", etapeSuivante);
-    document.getElementById("previous-button").addEventListener("click", etapePrecedente);
-    document.getElementById("reset-button").addEventListener("click", () => {
-        if (!confirm("Effacer toutes les réponses enregistrées dans ce navigateur ?")) return;
-        reinitialiserProfil();
-        etapeQuestionnaire = 0;
-        document.getElementById("results").style.display = "none";
-        document.getElementById("questionnaire-card").style.display = "block";
-        afficherEtape();
-    });
+
+    const boutonSuivant = document.getElementById("next-button");
+    const boutonPrecedent = document.getElementById("previous-button");
+    const boutonReset = document.getElementById("reset-button");
+
+    if (boutonSuivant) {
+        boutonSuivant.addEventListener("click", etapeSuivante);
+    }
+
+    if (boutonPrecedent) {
+        boutonPrecedent.addEventListener("click", etapePrecedente);
+    }
+
+    if (boutonReset) {
+        boutonReset.addEventListener("click", () => {
+            if (!confirm("Effacer toutes les réponses enregistrées dans ce navigateur ?")) return;
+            reinitialiserProfil();
+            etapeQuestionnaire = 0;
+            affichageResultats = false;
+            document.getElementById("results").style.display = "none";
+            document.getElementById("questionnaire-card").style.display = "block";
+            afficherEtape();
+        });
+    }
 }

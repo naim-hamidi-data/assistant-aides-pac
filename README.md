@@ -1,12 +1,9 @@
-# Assistant & Simulateur d'aides PAC 2026 — version complète
+# Assistant PAC 2026 — version compatible
 
-Aider les exploitants et conseillers a identifier et quantifier le montant des aides de la PAC.
+Cette version regroupe des fichiers conçus pour fonctionner ensemble.
 
-## Fichiers
+## Fichiers JavaScript à remplacer ensemble
 
-- `index.html`
-- `style.css`
-- `script.js`
 - `data/aides.js`
 - `data/parametres-2026.js`
 - `modules/profil.js`
@@ -14,22 +11,12 @@ Aider les exploitants et conseillers a identifier et quantifier le montant des a
 - `modules/calcul.js`
 - `modules/questionnaire.js`
 
-## Périmètre intégré
+Le fichier `script.js` est également inclus.
 
-- aide de base / DPB
-- écorégime
-- aide redistributive
-- ACJA
-- aides couplées végétales du guide
-- aides couplées animales Hexagone et Corse
-- ICHN animale et végétale
-- CAB
-- MAEC surfaciques (orientation)
-- assurance MRC (référence 2025 seulement si nécessaire)
-- prédation
-- programmes sectoriels
-- aides régionales du Feader (orientation)
+## Interface
+
+`index.html` et `style.css` correspondent à l'interface « TelePAC modernisé » avec navigation latérale.
 
 ## Important
 
-Les valeurs 2024/2025 restent identifiées comme références. Les paramètres locaux absents du guide national ne sont pas inventés.
+Ne mélangez pas ces fichiers avec une ancienne version du projet : les chemins de données du profil et les fonctions appelées par le questionnaire doivent rester synchronisés.
