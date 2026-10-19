@@ -1,81 +1,310 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Assistant d'orientation et de simulation des aides PAC 2026.">
-    <title>Assistant & Simulateur d'aides PAC 2026</title>
-    <link rel="stylesheet" href="style.css">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Assistant PAC 2026
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
+
 <body>
-<header class="topbar">
-    <div class="topbar-inner">
-        <a class="brand" href="#">Assistant PAC</a>
-        <div class="topbar-actions">
-            <span class="campaign">Campagne 2026</span>
-            <button id="reset-button" class="text-button" type="button">Réinitialiser</button>
+
+
+<!-- ======================================================
+     EN-TÊTE
+====================================================== -->
+
+<header class="app-header">
+
+    <div class="header-left">
+
+        <div class="logo-block">
+            PAC
         </div>
+
+        <div class="header-title">
+
+            <strong>
+                Assistant PAC
+            </strong>
+
+            <span>
+                Orientation et estimation des aides
+            </span>
+
+        </div>
+
     </div>
+
+
+    <div class="header-right">
+
+        <div class="campaign-badge">
+            Campagne 2026
+        </div>
+
+        <div class="save-status">
+            Données enregistrées localement
+        </div>
+
+    </div>
+
 </header>
 
-<main class="page">
-    <section class="hero">
-        <span class="eyebrow">ASSISTANT & SIMULATEUR</span>
-        <h1>Quelles aides PAC correspondent à votre exploitation ?</h1>
-        <p>
-            Décrivez votre exploitation. L'outil identifie les dispositifs à examiner et estime les montants
-            lorsque les informations du guide permettent un calcul suffisamment explicite.
-        </p>
-    </section>
 
-    <section class="scope-banner">
-        <strong>Périmètre</strong>
-        <p>
-            Cette version est fondée sur le guide ministériel « PAC 2023-2027 », version avril 2026.
-            Les montants 2024 ou 2025 restent explicitement présentés comme références lorsqu'un montant 2026
-            n'est pas fourni. Les paramètres locaux ne sont pas inventés.
-        </p>
-    </section>
 
-    <section id="questionnaire-card" class="questionnaire-card">
-        <div class="progress-header">
-            <span id="step-counter">Étape 1</span>
-        </div>
-        <div class="progress-track">
-            <div id="progress-bar" class="progress-bar"></div>
-        </div>
+<!-- ======================================================
+     APPLICATION
+====================================================== -->
 
-        <div class="question-header">
-            <h2 id="question-title"></h2>
-            <p id="question-subtitle"></p>
+<div class="app-layout">
+
+
+    <!-- ==================================================
+         MENU LATÉRAL
+    ================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-heading">
+
+            <span class="sidebar-label">
+                MON DOSSIER PAC
+            </span>
+
+            <strong>
+                Exploitation
+            </strong>
+
         </div>
 
-        <div id="questions-container" class="questions-container"></div>
 
-        <div class="question-navigation">
-            <button id="previous-button" type="button" class="secondary-button">Précédent</button>
-            <button id="next-button" type="button" class="primary-button">Continuer</button>
+        <nav
+            id="sidebar-steps"
+            class="sidebar-steps"
+        >
+        </nav>
+
+
+        <div class="sidebar-info">
+
+            <strong>
+                Confidentialité
+            </strong>
+
+            <p>
+                Les informations renseignées restent
+                enregistrées dans votre navigateur.
+            </p>
+
         </div>
-    </section>
 
-    <section id="results" class="results" style="display:none"></section>
+    </aside>
 
-    <section class="disclaimer">
-        <strong>À savoir</strong>
-        <p>
-            L'outil fournit une orientation et, lorsque possible, une estimation. Il ne constitue ni une attestation
-            de conformité ni une décision d'éligibilité administrative.
-        </p>
-        <p>Les réponses sont enregistrées uniquement dans le stockage local de votre navigateur.</p>
-    </section>
-</main>
+
+
+    <!-- ==================================================
+         CONTENU
+    ================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- ==============================================
+             INTRODUCTION
+        =============================================== -->
+
+        <section class="page-context">
+
+            <div>
+
+                <span class="context-label">
+                    DOSSIER PAC 2026
+                </span>
+
+                <h1>
+                    Identifier mes aides PAC
+                </h1>
+
+                <p>
+                    Renseignez les caractéristiques de votre
+                    exploitation. L'outil identifie ensuite les
+                    aides à examiner et estime les montants
+                    lorsque les données disponibles le permettent.
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==============================================
+             QUESTIONNAIRE
+        =============================================== -->
+
+        <section
+            id="questionnaire-card"
+            class="workspace-card"
+        >
+
+
+            <div class="workspace-top">
+
+                <div>
+
+                    <span
+                        id="step-counter"
+                        class="step-counter"
+                    >
+                        Étape 1
+                    </span>
+
+                    <h2 id="question-title"></h2>
+
+                    <p
+                        id="question-subtitle"
+                        class="question-subtitle"
+                    ></p>
+
+                </div>
+
+            </div>
+
+
+            <div class="progress-track">
+
+                <div
+                    id="progress-bar"
+                    class="progress-bar"
+                ></div>
+
+            </div>
+
+
+            <div
+                id="questions-container"
+                class="questions-container"
+            >
+            </div>
+
+
+            <div class="question-navigation">
+
+                <button
+                    id="previous-button"
+                    type="button"
+                    class="button button-secondary"
+                >
+                    ← Précédent
+                </button>
+
+
+                <div class="navigation-right">
+
+                    <span class="autosave-label">
+                        Enregistrement automatique
+                    </span>
+
+                    <button
+                        id="next-button"
+                        type="button"
+                        class="button button-primary"
+                    >
+                        Continuer →
+                    </button>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- ==============================================
+             RÉSULTATS
+        =============================================== -->
+
+        <section
+            id="results"
+            class="results"
+            style="display:none"
+        >
+        </section>
+
+
+
+        <!-- ==============================================
+             AVERTISSEMENT
+        =============================================== -->
+
+        <section class="legal-notice">
+
+            <div class="legal-icon">
+                i
+            </div>
+
+            <div>
+
+                <strong>
+                    Outil d'aide à l'orientation
+                </strong>
+
+                <p>
+                    Les résultats produits ne constituent pas
+                    une décision administrative d'éligibilité.
+                    Les critères et montants définitifs doivent
+                    être vérifiés auprès des services compétents
+                    et dans les textes applicables à la campagne.
+                </p>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+
+<!-- ======================================================
+     SCRIPTS
+====================================================== -->
 
 <script src="data/aides.js"></script>
+
 <script src="data/parametres-2026.js"></script>
+
 <script src="modules/profil.js"></script>
+
 <script src="modules/eligibility.js"></script>
+
 <script src="modules/calcul.js"></script>
+
 <script src="modules/questionnaire.js"></script>
+
 <script src="script.js"></script>
+
+
 </body>
+
 </html>
