@@ -1,6 +1,6 @@
 # Assistant & Simulateur d'aides PAC 2026 — version complète
 
-Cette version remplace les fichiers existants par un ensemble cohérent.
+Aider les exploitants et conseillers a identifier et quantifier le montant des aides de la PAC.
 
 ## Fichiers
 
@@ -33,7 +33,3 @@ Cette version remplace les fichiers existants par un ensemble cohérent.
 ## Important
 
 Les valeurs 2024/2025 restent identifiées comme références. Les paramètres locaux absents du guide national ne sont pas inventés.
-
-## Installation
-
-Remplacer les fichiers homonymes du dépôt GitHub, en conservant exactement les dossiers `data/` et `modules/`. Puis actualiser GitHub Pages avec `Ctrl + F5`.
