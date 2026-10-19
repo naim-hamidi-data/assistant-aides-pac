@@ -1760,6 +1760,666 @@ function analyserVeauxQualite() {
     );
 }
 
+/* =========================================================
+   ICHN — OUTILS
+========================================================= */
+
+function estZoneMontagneICHN() {
+
+    const zone =
+        profilExploitation
+            .ichn
+            .typeZone;
+
+    return (
+        zone === "montagne" ||
+        zone === "haute_montagne"
+    );
+}
+
+
+function estZoneHorsMontagneICHN() {
+
+    const zone =
+        profilExploitation
+            .ichn
+            .typeZone;
+
+    return (
+        zone === "piemont" ||
+        zone === "zone_defavorisee_simple"
+    );
+}
+
+
+/* =========================================================
+   ICHN ANIMALE
+========================================================= */
+
+function analyserICHNAnimale() {
+
+    const ichn =
+        profilExploitation.ichn;
+
+    const actif =
+        verifierAgriculteurActif();
+
+    const raisons = [];
+
+    const informationsManquantes = [];
+
+    const verifications = [];
+
+
+    /* -----------------------------------------------------
+       AGRICULTEUR ACTIF
+    ----------------------------------------------------- */
+
+    if (actif.inconnu) {
+
+        informationsManquantes.push(
+            "Statut d'agriculteur actif"
+        );
+    }
+
+    else if (!actif.valide) {
+
+        return creerResultatAide(
+
+            "ichn_animale",
+
+            STATUT_AIDE.NON_RETENUE,
+
+            [],
+
+            [],
+
+            [
+                "Le demandeur ne remplit pas le critère d'agriculteur actif."
+            ]
+        );
+    }
+
+
+    /* -----------------------------------------------------
+       PRÉSENCE D'UNE ZONE ICHN
+    ----------------------------------------------------- */
+
+    if (ichn.zoneEligible === false) {
+
+        return creerResultatAide(
+
+            "ichn_animale",
+
+            STATUT_AIDE.NON_RETENUE,
+
+            [],
+
+            [],
+
+            [
+                "Aucune surface située en zone défavorisée ICHN n'est renseignée."
+            ]
+        );
+    }
+
+
+    if (ichn.zoneEligible === null) {
+
+        informationsManquantes.push(
+            "Présence de surfaces en zone défavorisée ICHN"
+        );
+    }
+
+
+    if (ichn.typeZone === null) {
+
+        informationsManquantes.push(
+            "Type de zone ICHN"
+        );
+    }
+
+
+    /* -----------------------------------------------------
+       SURFACE FOURRAGÈRE
+    ----------------------------------------------------- */
+
+    if (
+        ichn.aideAnimale === false
+    ) {
+
+        return creerResultatAide(
+
+            "ichn_animale",
+
+            STATUT_AIDE.NON_RETENUE,
+
+            [],
+
+            [],
+
+            [
+                "Aucune surface fourragère en zone défavorisée n'est renseignée."
+            ]
+        );
+    }
+
+
+    if (
+        ichn.surfacesFourrageresEligibles === null
+    ) {
+
+        informationsManquantes.push(
+            "Surface fourragère située en zone défavorisée"
+        );
+    }
+
+    else if (
+        ichn.surfacesFourrageresEligibles < 3
+    ) {
+
+        return creerResultatAide(
+
+            "ichn_animale",
+
+            STATUT_AIDE.NON_RETENUE,
+
+            [],
+
+            [],
+
+            [
+                "La surface fourragère située en zone défavorisée est inférieure à 3 ha."
+            ]
+        );
+    }
+
+
+    /* -----------------------------------------------------
+       UGB
+    ----------------------------------------------------- */
+
+    if (ichn.ugb === null) {
+
+        informationsManquantes.push(
+            "Nombre d'UGB"
+        );
+    }
+
+    else if (ichn.ugb < 5) {
+
+        return creerResultatAide(
+
+            "ichn_animale",
+
+            STATUT_AIDE.NON_RETENUE,
+
+            [],
+
+            [],
+
+            [
+                "Le nombre d'UGB est inférieur au seuil de 5 UGB."
+            ]
+        );
+    }
+
+
+    /* -----------------------------------------------------
+       SIÈGE D'EXPLOITATION
+       requis hors montagne
+    ----------------------------------------------------- */
+
+    if (
+        estZoneHorsMontagneICHN()
+    ) {
+
+        if (
+            ichn.siegeEnZoneDefavorisee === null
+        ) {
+
+            informationsManquantes.push(
+                "Localisation du siège d'exploitation"
+            );
+        }
+
+        else if (
+            ichn.siegeEnZoneDefavorisee === false
+        ) {
+
+            return creerResultatAide(
+
+                "ichn_animale",
+
+                STATUT_AIDE.NON_RETENUE,
+
+                [],
+
+                [],
+
+                [
+                    "Pour l'ICHN animale hors montagne, le siège d'exploitation doit être situé en zone défavorisée."
+                ]
+            );
+        }
+    }
+
+
+    /* -----------------------------------------------------
+       PART DE LA SAU EN ZONE DÉFAVORISÉE
+    ----------------------------------------------------- */
+
+    if (
+        ichn.pourcentageSAUZoneDefavorisee === null
+    ) {
+
+        informationsManquantes.push(
+            "Part de la SAU située en zone défavorisée"
+        );
+    }
+
+    else if (
+        ichn.pourcentageSAUZoneDefavorisee < 80
+    ) {
+
+        /*
+           Hors montagne :
+           les surfaces situées en zone défavorisée
+           hors montagne ne sont pas indemnisées.
+        */
+
+        if (
+            estZoneHorsMontagneICHN()
+        ) {
+
+            return creerResultatAide(
+
+                "ichn_animale",
+
+                STATUT_AIDE.NON_RETENUE,
+
+                [],
+
+                [],
+
+                [
+                    "Moins de 80 % de la SAU est située en zone défavorisée. Le guide indique que les surfaces hors montagne ne sont alors pas indemnisées."
+                ]
+            );
+        }
+
+
+        /*
+           En montagne :
+           une aide fortement réduite peut subsister.
+        */
+
+        if (
+            estZoneMontagneICHN()
+        ) {
+
+            verifications.push(
+                "Moins de 80 % de la SAU est située en zone défavorisée. En montagne, un paiement fortement réduit peut rester possible."
+            );
+        }
+    }
+
+
+    /* -----------------------------------------------------
+       REVENU AGRICOLE
+    ----------------------------------------------------- */
+
+    if (
+        ichn.partRevenuAgricolePourcent === null
+    ) {
+
+        informationsManquantes.push(
+            "Part du revenu provenant de l'activité agricole"
+        );
+    }
+
+    else if (
+        ichn.partRevenuAgricolePourcent < 50
+    ) {
+
+        verifications.push(
+            "Le revenu agricole représente moins de 50 % du revenu. Des plafonnements ou une absence de paiement peuvent s'appliquer selon le revenu non agricole."
+        );
+    }
+
+
+    /* -----------------------------------------------------
+       INFORMATIONS MANQUANTES
+    ----------------------------------------------------- */
+
+    if (
+        informationsManquantes.length > 0
+    ) {
+
+        return creerResultatAide(
+
+            "ichn_animale",
+
+            STATUT_AIDE.INFORMATIONS_MANQUANTES,
+
+            raisons,
+
+            informationsManquantes,
+
+            verifications
+        );
+    }
+
+
+    /* -----------------------------------------------------
+       AIDE À EXAMINER
+    ----------------------------------------------------- */
+
+    raisons.push(
+        "Des surfaces fourragères en zone défavorisée sont renseignées."
+    );
+
+    raisons.push(
+        "Le seuil minimal de 3 ha de surface fourragère est atteint."
+    );
+
+    raisons.push(
+        "Le seuil minimal de 5 UGB est atteint."
+    );
+
+
+    return creerResultatAide(
+
+        "ichn_animale",
+
+        STATUT_AIDE.A_EXAMINER,
+
+        raisons,
+
+        [],
+
+        verifications,
+
+        {
+
+            typeZone:
+                ichn.typeZone,
+
+            surfaceFourragere:
+                ichn.surfacesFourrageresEligibles,
+
+            ugb:
+                ichn.ugb,
+
+            pourcentageSAUZoneDefavorisee:
+                ichn.pourcentageSAUZoneDefavorisee
+        }
+    );
+}
+
+
+/* =========================================================
+   ICHN VÉGÉTALE
+========================================================= */
+
+function analyserICHNVegetale() {
+
+    const ichn =
+        profilExploitation.ichn;
+
+    const actif =
+        verifierAgriculteurActif();
+
+    const raisons = [];
+
+    const informationsManquantes = [];
+
+    const verifications = [];
+
+
+    /* -----------------------------------------------------
+       AGRICULTEUR ACTIF
+    ----------------------------------------------------- */
+
+    if (actif.inconnu) {
+
+        informationsManquantes.push(
+            "Statut d'agriculteur actif"
+        );
+    }
+
+    else if (!actif.valide) {
+
+        return creerResultatAide(
+
+            "ichn_vegetale",
+
+            STATUT_AIDE.NON_RETENUE,
+
+            [],
+
+            [],
+
+            [
+                "Le demandeur ne remplit pas le critère d'agriculteur actif."
+            ]
+        );
+    }
+
+
+    /* -----------------------------------------------------
+       ZONAGE
+    ----------------------------------------------------- */
+
+    if (ichn.zoneEligible === false) {
+
+        return creerResultatAide(
+
+            "ichn_vegetale",
+
+            STATUT_AIDE.NON_RETENUE,
+
+            [],
+
+            [],
+
+            [
+                "Aucune surface située en zone défavorisée ICHN n'est renseignée."
+            ]
+        );
+    }
+
+
+    if (ichn.typeZone === null) {
+
+        informationsManquantes.push(
+            "Type de zone ICHN"
+        );
+    }
+
+    else if (
+        !estZoneMontagneICHN()
+    ) {
+
+        return creerResultatAide(
+
+            "ichn_vegetale",
+
+            STATUT_AIDE.NON_RETENUE,
+
+            [],
+
+            [],
+
+            [
+                "L'ICHN végétale est réservée aux zones de montagne et de haute montagne."
+            ]
+        );
+    }
+
+
+    /* -----------------------------------------------------
+       CULTURES DE VENTE
+    ----------------------------------------------------- */
+
+    if (
+        ichn.aideVegetale === false
+    ) {
+
+        return creerResultatAide(
+
+            "ichn_vegetale",
+
+            STATUT_AIDE.NON_RETENUE,
+
+            [],
+
+            [],
+
+            [
+                "Aucune culture de vente en zone de montagne n'est renseignée."
+            ]
+        );
+    }
+
+
+    if (
+        ichn.surfacesVegetalesEligibles === null
+    ) {
+
+        informationsManquantes.push(
+            "Surface admissible en cultures de vente située en montagne"
+        );
+    }
+
+    else if (
+        ichn.surfacesVegetalesEligibles < 1
+    ) {
+
+        return creerResultatAide(
+
+            "ichn_vegetale",
+
+            STATUT_AIDE.NON_RETENUE,
+
+            [],
+
+            [],
+
+            [
+                "La surface de cultures de vente est inférieure à 1 ha."
+            ]
+        );
+    }
+
+
+    /* -----------------------------------------------------
+       PART DE SAU EN ZONE DÉFAVORISÉE
+    ----------------------------------------------------- */
+
+    if (
+        ichn.pourcentageSAUZoneDefavorisee === null
+    ) {
+
+        informationsManquantes.push(
+            "Part de la SAU située en zone défavorisée"
+        );
+    }
+
+    else if (
+        ichn.pourcentageSAUZoneDefavorisee < 80
+    ) {
+
+        verifications.push(
+            "Moins de 80 % de la SAU est située en zone défavorisée. Le guide prévoit dans ce cas un paiement fortement réduit pour les surfaces de montagne."
+        );
+    }
+
+
+    /* -----------------------------------------------------
+       REVENU
+    ----------------------------------------------------- */
+
+    if (
+        ichn.partRevenuAgricolePourcent === null
+    ) {
+
+        informationsManquantes.push(
+            "Part du revenu provenant de l'activité agricole"
+        );
+    }
+
+    else if (
+        ichn.partRevenuAgricolePourcent < 50
+    ) {
+
+        verifications.push(
+            "Le revenu agricole représente moins de 50 % du revenu. Des limitations supplémentaires peuvent s'appliquer."
+        );
+    }
+
+
+    /* -----------------------------------------------------
+       INFORMATIONS MANQUANTES
+    ----------------------------------------------------- */
+
+    if (
+        informationsManquantes.length > 0
+    ) {
+
+        return creerResultatAide(
+
+            "ichn_vegetale",
+
+            STATUT_AIDE.INFORMATIONS_MANQUANTES,
+
+            raisons,
+
+            informationsManquantes,
+
+            verifications
+        );
+    }
+
+
+    /* -----------------------------------------------------
+       AIDE À EXAMINER
+    ----------------------------------------------------- */
+
+    raisons.push(
+        "Les surfaces sont situées en zone de montagne ou haute montagne."
+    );
+
+    raisons.push(
+        "Au moins 1 ha de cultures de vente est renseigné."
+    );
+
+
+    return creerResultatAide(
+
+        "ichn_vegetale",
+
+        STATUT_AIDE.A_EXAMINER,
+
+        raisons,
+
+        [],
+
+        verifications,
+
+        {
+
+            typeZone:
+                ichn.typeZone,
+
+            surface:
+                ichn.surfacesVegetalesEligibles,
+
+            zoneSeche:
+                ichn.zoneSeche
+        }
+    );
+}
 
 /* =========================================================
    15. ANALYSE GLOBALE
@@ -1789,7 +2449,11 @@ function analyserToutesLesAides() {
 
         analyserOvins(),
 
-        analyserCaprins()
+        analyserCaprins(),
+       
+        analyserICHNAnimale(),
+
+        analyserICHNVegetale()
 
     ];
 
