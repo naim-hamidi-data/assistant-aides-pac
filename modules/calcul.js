@@ -2264,6 +2264,428 @@ function calculerCaprins() {
     });
 }
 
+/* =========================================================
+   ICHN ANIMALE
+========================================================= */
+
+function calculerICHNAnimale() {
+
+    const orientation =
+        analyserICHNAnimale();
+
+    if (
+        orientation.statut !==
+        STATUT_AIDE.A_EXAMINER
+    ) {
+
+        return creerCalcul({
+
+            id: "ichn_animale",
+
+            nom:
+                "ICHN animale",
+
+            type:
+                TYPE_CALCUL.NON_CALCULABLE,
+
+            avertissements:
+                orientation.informationsManquantes || []
+        });
+    }
+
+
+    const ichn =
+        profilExploitation.ichn;
+
+    const param =
+        PARAMETRES_PAC_2026.ICHN.animale;
+
+
+    const surface =
+        Math.min(
+
+            ichn.surfacesFourrageresEligibles,
+
+            param.surfaceMaximum
+        );
+
+
+    /*
+       Part fixe théorique :
+       70 €/ha sur maximum 75 ha.
+
+       Attention :
+       le montant final dépend aussi
+       de la part variable locale
+       et du chargement.
+    */
+
+    const partFixeTheorique =
+        surface *
+        param.montantBaseParHa;
+
+
+    /*
+       Si nous ne connaissons pas
+       le montant variable local
+       ou le coefficient de chargement,
+       on ne calcule pas un faux montant final.
+    */
+
+    if (
+        ichn.montantVariableSousZone === null ||
+        ichn.coefficientModulationChargement === null
+    ) {
+
+        return creerCalcul({
+
+            id:
+                "ichn_animale",
+
+            nom:
+                "ICHN animale",
+
+            type:
+                TYPE_CALCUL.NON_CALCULABLE,
+
+            formule:
+                "Part fixe + part variable de sous-zone, avec modulation selon le chargement",
+
+            donnees: {
+
+                surfaceRetenue:
+                    surface,
+
+                montantBaseParHa:
+                    param.montantBaseParHa
+            },
+
+            avertissements: [
+
+                "L'ICHN animale est à examiner mais son montant final dépend de paramètres locaux.",
+
+                "Le montant variable de la sous-zone et la modulation liée au chargement doivent être vérifiés.",
+
+                `Part fixe théorique avant modulation : ${formaterMontant(partFixeTheorique)}.`
+            ]
+        });
+    }
+
+
+    /* =====================================================
+       PART VARIABLE
+    ===================================================== */
+
+    const premiereTranche =
+        Math.min(
+            surface,
+            25
+        );
+
+
+    const deuxiemeTranche =
+        Math.max(
+
+            0,
+
+            Math.min(
+                surface,
+                50
+            ) - 25
+        );
+
+
+    const partVariable =
+
+        (
+            premiereTranche *
+            ichn.montantVariableSousZone
+        )
+
+        +
+
+        (
+            deuxiemeTranche *
+            ichn.montantVariableSousZone *
+            param.coefficientDeuxiemeTranche
+        );
+
+
+    const montantAvantModulation =
+        partFixeTheorique +
+        partVariable;
+
+
+    const montant =
+        montantAvantModulation *
+        ichn.coefficientModulationChargement;
+
+
+    const avertissements = [];
+
+
+    if (
+        profilExploitation
+            .general
+            .gaecTotal === true
+    ) {
+
+        avertissements.push(
+            "La transparence GAEC doit être vérifiée pour les plafonds ICHN."
+        );
+    }
+
+
+    if (
+        ichn.pourcentageSAUZoneDefavorisee < 80
+    ) {
+
+        avertissements.push(
+            "Moins de 80 % de la SAU est située en zone défavorisée : une réduction spécifique peut s'appliquer."
+        );
+    }
+
+
+    if (
+        ichn.partRevenuAgricolePourcent < 50
+    ) {
+
+        avertissements.push(
+            "Le revenu agricole représente moins de 50 % du revenu : des limitations supplémentaires peuvent s'appliquer."
+        );
+    }
+
+
+    return creerCalcul({
+
+        id:
+            "ichn_animale",
+
+        nom:
+            "ICHN animale",
+
+        montant:
+            montant,
+
+        type:
+            TYPE_CALCUL.PARTIEL,
+
+        formule:
+            "(Part fixe + part variable) × coefficient de chargement",
+
+        donnees: {
+
+            surface:
+                surface,
+
+            partFixe:
+                partFixeTheorique,
+
+            partVariable:
+                partVariable,
+
+            coefficientChargement:
+                ichn.coefficientModulationChargement
+        },
+
+        avertissements:
+            avertissements
+    });
+}
+
+
+/* =========================================================
+   ICHN VÉGÉTALE
+========================================================= */
+
+function calculerICHNVegetale() {
+
+    const orientation =
+        analyserICHNVegetale();
+
+
+    if (
+        orientation.statut !==
+        STATUT_AIDE.A_EXAMINER
+    ) {
+
+        return creerCalcul({
+
+            id:
+                "ichn_vegetale",
+
+            nom:
+                "ICHN végétale",
+
+            type:
+                TYPE_CALCUL.NON_CALCULABLE,
+
+            avertissements:
+                orientation.informationsManquantes || []
+        });
+    }
+
+
+    const ichn =
+        profilExploitation.ichn;
+
+
+    if (
+        ichn.zoneSeche === null
+    ) {
+
+        return creerCalcul({
+
+            id:
+                "ichn_vegetale",
+
+            nom:
+                "ICHN végétale",
+
+            type:
+                TYPE_CALCUL.NON_CALCULABLE,
+
+            avertissements: [
+
+                "Il faut préciser si les surfaces sont situées en zone sèche."
+            ]
+        });
+    }
+
+
+    const param =
+        PARAMETRES_PAC_2026
+            .ICHN
+            .vegetale;
+
+
+    const surface =
+        Math.min(
+
+            ichn.surfacesVegetalesEligibles,
+
+            param.surfaceMaximum
+        );
+
+
+    const tarif =
+        ichn.zoneSeche === true
+
+            ? param.montantZoneSecheParHa
+
+            : param.montantAutreZoneParHa;
+
+
+    const premiereTranche =
+        Math.min(
+            surface,
+            25
+        );
+
+
+    const deuxiemeTranche =
+        Math.max(
+
+            0,
+
+            surface - 25
+        );
+
+
+    const montant =
+
+        (
+            premiereTranche *
+            tarif
+        )
+
+        +
+
+        (
+            deuxiemeTranche *
+            tarif *
+            param.coefficientDeuxiemeTranche
+        );
+
+
+    /*
+       Si moins de 80 % de la SAU
+       est en zone défavorisée,
+       le guide indique une réduction
+       sans fournir ici le coefficient exact.
+    */
+
+    if (
+        ichn.pourcentageSAUZoneDefavorisee < 80 ||
+        ichn.partRevenuAgricolePourcent < 50
+    ) {
+
+        return creerCalcul({
+
+            id:
+                "ichn_vegetale",
+
+            nom:
+                "ICHN végétale",
+
+            type:
+                TYPE_CALCUL.NON_CALCULABLE,
+
+            formule:
+                "25 premiers ha au tarif plein puis tranche 25-50 ha à 2/3",
+
+            donnees: {
+
+                surface:
+                    surface,
+
+                tarif:
+                    tarif
+            },
+
+            avertissements: [
+
+                `Montant avant réduction éventuelle : ${formaterMontant(montant)}.`,
+
+                "Une réduction ou un plafonnement doit être vérifié avant d'afficher un montant définitif."
+            ]
+        });
+    }
+
+
+    return creerCalcul({
+
+        id:
+            "ichn_vegetale",
+
+        nom:
+            "ICHN végétale",
+
+        montant:
+            montant,
+
+        type:
+            TYPE_CALCUL.CAMPAGNE_2026,
+
+        anneeReference:
+            2026,
+
+        formule:
+            "25 premiers ha au tarif plein + hectares 25 à 50 à 2/3 du tarif",
+
+        donnees: {
+
+            surface:
+                surface,
+
+            tarif:
+                tarif,
+
+            zoneSeche:
+                ichn.zoneSeche
+        }
+    });
+}
 
 /* =========================================================
    19. CALCUL GLOBAL
