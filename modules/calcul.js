@@ -2729,7 +2729,11 @@ function calculerToutesLesAides() {
 
         calculerOvins(),
 
-        calculerCaprins()
+        calculerCaprins(), 
+
+       calculerICHNAnimale(),
+
+       calculerICHNVegetale()
 
     ];
 }
