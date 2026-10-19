@@ -1,796 +1,334 @@
 /* =========================================================
-   ASSISTANT & SIMULATEUR D'AIDES PAC 2026
-   PROFIL DE L'EXPLOITATION
-
-   Ce fichier contient les données utilisées par :
-   - le questionnaire
-   - le moteur d'orientation
-   - le moteur d'éligibilité
-   - le simulateur financier
-   - les scénarios
-
-   Les valeurs null signifient :
-   "information non renseignée / inconnue"
+   PROFIL D'EXPLOITATION
 ========================================================= */
 
-
-/* =========================================================
-   1. PROFIL INITIAL
-========================================================= */
+const CLE_STOCKAGE_PROFIL = "assistant_pac_2026_profil_v2";
 
 const PROFIL_INITIAL = {
-
-    /* -----------------------------------------------------
-       A. INFORMATIONS GÉNÉRALES
-    ----------------------------------------------------- */
-
     general: {
-
         campagne: 2026,
-
-        territoire: {
-            pays: "France",
-            zone: null,          // Hexagone / Corse / Outre-mer
-            region: null,
-            departement: null,
-            commune: null
-        },
-
+        territoire: "Hexagone", // Hexagone | Corse | Outre-mer
+        region: null,
+        departement: null,
+        commune: null,
         statutJuridique: null,
-
-        // Exemples :
-        // individuel
-        // GAEC
-        // EARL
-        // SCEA
-        // SAS
-        // SARL
-        // SA
-        // autre
-
-        nombreAssocies: null,
-
-        gaecTotal: false
+        gaecTotal: false,
+        nombreAssocies: 1
     },
-
-
-    /* -----------------------------------------------------
-       B. AGRICULTEUR ACTIF
-    ----------------------------------------------------- */
 
     agriculteurActif: {
-
-        statut: null,
-        // true / false / null
-
-        typeDemandeur: null,
-        // personne_physique / societe
-
-        age: null,
-
-        assureATEXA: null,
-
-        droitsRetraiteLiquides: null,
-
-        activiteAgricole: null,
-
-        /* Pour certaines sociétés */
-        auMoinsUnAssocieActif: null,
-
-        dirigeantsAffiliesRegimeAgricole: null,
-
-        commentaire: null
+        statut: null // true | false | null
     },
 
-
-    /* -----------------------------------------------------
-       C. SURFACES
-    ----------------------------------------------------- */
-
     surfaces: {
-
         sau: null,
-
         surfaceAdmissible: null,
-
         terresArables: null,
-
         prairiesPermanentes: null,
-
         culturesPermanentes: null,
-
         surfaceFourragere: null,
-
-        jacheres: null,
-
-        surfaceIAE: null,
-
-        /* Haies */
-        longueurHaiesMetres: null,
-
-        surfaceEquivalentHaies: null,
-
         pourcentageHaiesSAU: null,
-
         pourcentageHaiesTerresArables: null
     },
 
-
-    /* -----------------------------------------------------
-       D. DPB
-    ----------------------------------------------------- */
-
     dpb: {
-
         detientDPB: null,
-
         nombreDPB: null,
-
         nombreDPBActives: null,
-
         valeurMoyenneDPB: null,
-
-        valeurTotaleDPB: null,
-
-        /* Pour nouveaux installés / transferts */
-        demandeReserve: null,
-
-        transfertDPB: null
+        valeurTotaleDPB: null
     },
-
-
-    /* -----------------------------------------------------
-       E. INSTALLATION / JEUNE AGRICULTEUR
-    ----------------------------------------------------- */
 
     installation: {
-
         premiereInstallation: null,
-
         anneeInstallation: null,
-
-        jeuneAgriculteur: null,
-
         age: null,
-
         diplomeAgricoleNiveau4OuPlus: null,
-
         diplomeNiveau3OuPlus: null,
-
         experienceAgricoleMois: null,
-
-        dejaBeneficiaireACJA: null,
-
-        nombreAnneesACJADejaPercues: null
+        nombreAssociesJAEligibles: null
     },
-
-
-    /* -----------------------------------------------------
-       F. CERTIFICATIONS / ENVIRONNEMENT
-    ----------------------------------------------------- */
 
     environnement: {
-
         agricultureBiologique: null,
-
-        enConversionBio: null,
-
         hveRenovee: null,
-
         certificationCE2Plus: null,
-
         certificationGestionDurableHaies: null,
-
-        engageMAEC: null,
-
-        typeMAEC: null
+        maecEntretienLigneux: null
     },
-
-
-    /* -----------------------------------------------------
-       G. ÉCORÉGIME
-    ----------------------------------------------------- */
 
     ecoregime: {
-
-        voieSouhaitee: null,
-        // pratiques / certification / biodiversite
-
-        niveauEstime: null,
-        // base / superieur / bio
-
-        /* Voie des pratiques */
-
-        diversificationCulturesRespectee: null,
-
+        pointsDiversification: null,
         pourcentagePrairiesNonLabourees: null,
-
         pourcentageInterRangsCouverts: null,
-
-        /* Voie biodiversité */
-
-        pourcentageIAEEtJacheresSAU: null,
-
-        /* Bonus haies */
-
-        bonusHaiesPotentiel: null
+        pourcentageIAEEtJacheresSAU: null
     },
 
-
-    /* -----------------------------------------------------
-       H. PRODUCTIONS VÉGÉTALES
-    ----------------------------------------------------- */
-
     productionsVegetales: {
-
         legumineusesGraines: {
-            presente: false,
             surface: null,
-            type: null,
-            pourcentageProteagineuxMelange: null
-        },
-
-        legumineusesFourrageres: {
-            presente: false,
-            surface: null,
-            zone: null,
-            // plaine_piemont / montagne
-
-            melange: null,
-            pourcentageLegumineuses: null,
-            anneeSemis: null,
-
-            contratEleveur: null,
+            destination: null, // graines | deshydratation | semences
             contratDeshydratation: null,
-
-            destinationSemences: null
+            melangeProteagineuxPourcent: null
         },
-
+        legumineusesFourrageres: {
+            surface: null,
+            zone: null, // plaine_piemont | montagne
+            ugb: null,
+            contratEleveur5UGB: null,
+            melangeLegumineusesPourcent: null,
+            melangeAvecGraminees: null,
+            anneeSemis: null
+        },
         bleDur: {
-            presente: false,
             surface: null,
             contratCollecteur: null
         },
-
         pommeTerreFeculiere: {
-            presente: false,
             surface: null,
             contratTransformation: null
         },
-
         riz: {
-            presente: false,
             surface: null
         },
-
         houblon: {
-            presente: false,
             surface: null
         },
-
         semencesGraminees: {
-            presente: false,
             surface: null,
             contratCulture: null,
-            varieteAutorisee: null
+            varieteAutorisee: null,
+            usageGazonUniquement: null
         },
-
         chanvre: {
-            presente: false,
             surface: null,
-            contratTransformation: null
+            contratTransformationOuSemences: null,
+            thcConforme: null
         },
-
         maraichage: {
-            presente: false,
             surfaceLegumesFrais: null,
             surfacePetitsFruitsRouges: null
         },
-
         fruitsTransformes: {
-
-            pruneEnte: {
-                presente: false,
-                surface: null,
-                deboucheIndustriel: null
-            },
-
-            ceriseBigarreau: {
-                presente: false,
-                surface: null,
-                deboucheIndustriel: null
-            },
-
-            poireWilliams: {
-                presente: false,
-                surface: null,
-                deboucheIndustriel: null
-            },
-
-            pechePavie: {
-                presente: false,
-                surface: null,
-                deboucheIndustriel: null
-            },
-
-            tomateIndustrie: {
-                presente: false,
-                surface: null,
-                deboucheIndustriel: null
-            }
+            pruneEnte: null,
+            ceriseBigarreau: null,
+            poireWilliams: null,
+            pechePavie: null,
+            tomateIndustrie: null,
+            deboucheIndustriel: null
         }
     },
-
-
-    /* -----------------------------------------------------
-       I. ÉLEVAGE BOVIN
-    ----------------------------------------------------- */
 
     bovins: {
-
-        present: false,
-
-        nombreTotal: null,
-
-        ugbEligibles: null,
-
+        present: null,
+        ugbTotal: null,
         ugbNiveauSuperieur: null,
-
         ugbNiveauBase: null,
-
-        bovinsPlus16Mois: null,
-
-        bovinsPlus2Ans: null,
-
-        bovins6Mois2Ans: null,
-
-        nombreVachesEligibles: null,
-
-        nombreVeauxViandeNes: null,
-
         animauxDetenus6Mois: null,
-
         identificationConforme: null
     },
-
-
-    /* -----------------------------------------------------
-       J. VEAUX SOUS LA MÈRE / BIO
-    ----------------------------------------------------- */
 
     veauxQualite: {
-
-        present: false,
-
+        present: null,
         nombreVeauxEligibles: null,
-
         labelRouge: null,
-
         igpRoseePyreneesCatalanes: null,
-
         agricultureBiologique: null,
-
         detention45Jours: null,
-
         identificationConforme: null
     },
-
-
-    /* -----------------------------------------------------
-       K. OVINS
-    ----------------------------------------------------- */
 
     ovins: {
-
-        present: false,
-
+        present: null,
         nombreBrebis: null,
-
-        nombreBrebisEligibles: null,
-
+        nombreBrebisPresentes1JanvierNMoins1: null,
         nombreAgneauxVendusNMoins1: null,
-
-        ratioProductivite: null,
-
         detention100Jours: null,
-
         identificationConforme: null,
-
-        nouveauProducteur: null,
-
-        anneeCreationAtelier: null
+        nouveauProducteur: null
     },
 
-
-    /* -----------------------------------------------------
-       L. CAPRINS
-    ----------------------------------------------------- */
-
     caprins: {
-
-        present: false,
-
+        present: null,
         nombreChevres: null,
-
-        nombreChevresEligibles: null,
-
         detention100Jours: null,
-
         identificationConforme: null
     },
 
-
-    /* -----------------------------------------------------
-       M. ICHN
-    ----------------------------------------------------- */
+    petitsRuminantsCorse: {
+        nombreBrebis: null,
+        nombreChevres: null,
+        sousAOPBrocciu: null,
+        detention100Jours: null,
+        identificationConforme: null
+    },
 
     ichn: {
-
-    /* =====================================================
-       ZONAGE ICHN
-    ===================================================== */
-
-    zoneEligible: null,
-
-    // Valeurs prévues :
-    // "haute_montagne"
-    // "montagne"
-    // "piemont"
-    // "zone_defavorisee_simple"
-    typeZone: null,
-
-    // Certaines modalités distinguent zone sèche / hors zone sèche
-    zoneSeche: null,
-
-    // Pourcentage de la SAU totale située en zone défavorisée
-    pourcentageSAUZoneDefavorisee: null,
-
-    // Important notamment pour l'ICHN animale hors montagne
-    siegeEnZoneDefavorisee: null,
-
-
-    /* =====================================================
-       REVENU
-    ===================================================== */
-
-    // Part du revenu provenant de l'activité agricole
-    partRevenuAgricolePourcent: null,
-
-
-    /* =====================================================
-       ICHN ANIMALE
-    ===================================================== */
-
-    aideAnimale: null,
-
-    // Nombre d'UGB retenues
-    ugb: null,
-
-    // Surface fourragère située en zone défavorisée
-    surfacesFourrageresEligibles: null,
-
-
-    /* =====================================================
-       PARAMÈTRES LOCAUX
-       nécessaires plus tard pour le calcul précis
-    ===================================================== */
-
-    // Montant variable défini selon la sous-zone
-    montantVariableSousZone: null,
-
-    // Coefficient lié au chargement
-    coefficientModulationChargement: null,
-
-
-    /* =====================================================
-       ICHN VÉGÉTALE
-    ===================================================== */
-
-    aideVegetale: null,
-
-    // Surface de cultures de vente éligible en montagne
-    surfacesVegetalesEligibles: null
-},
-
-
-    /* -----------------------------------------------------
-       N. CONVERSION BIO
-    ----------------------------------------------------- */
+        zoneEligible: null,
+        typeZone: null, // haute_montagne | montagne | piemont | zone_defavorisee_simple
+        zoneSeche: null,
+        pourcentageSAUZoneDefavorisee: null,
+        siegeEnZoneDefavorisee: null,
+        partRevenuAgricolePourcent: null,
+        aideAnimale: null,
+        ugb: null,
+        surfacesFourrageresEligibles: null,
+        montantVariableSousZone: null,
+        coefficientModulationChargement: null,
+        aideVegetale: null,
+        surfacesVegetalesEligibles: null
+    },
 
     conversionBio: {
-
-        concernee: false,
-
-        surfacesEnConversion: null,
-
-        culturesEnConversion: []
+        enConversion: null,
+        premiereOuDeuxiemeAnnee: null,
+        landesEstivesParcours: null,
+        prairiesAvecElevage: null,
+        culturesAnnuellesLegumineusesJacheresSemences: null,
+        viticulture: null,
+        ppamListees: null,
+        legumesPleinChampBetterave: null,
+        maraichageArboricultureAutresPpamSemences: null
     },
-
-
-    /* -----------------------------------------------------
-       O. MAEC
-    ----------------------------------------------------- */
 
     maec: {
-
-        concernee: false,
-
-        dispositif: null,
-
-        surfaceEngagee: null,
-
-        engagementSysteme: null,
-
-        engagementLocalise: null
+        souhaiteExaminer: null,
+        offreLocaleConnue: null,
+        type: null // systeme | localisee | inconnue
     },
 
+    assurance: {
+        souscritMRC: null,
+        primeAnnuelle: null
+    },
 
-    /* -----------------------------------------------------
-       P. ASSURANCE MULTIRISQUES CLIMATIQUE
-    ----------------------------------------------------- */
+    predation: {
+        zoneRisque: null
+    },
 
-    assuranceMRC: {
+    programmesSectoriels: {
+        concerne: null,
+        secteur: null, // vin | apiculture | fruits_legumes | huile_olive | proteines | horticulture | veau_label | lapin | riz
+        membreOPAOP: null
+    },
 
-        contratSouscrit: null,
-
-        surfaceAssuree: null,
-
-        montantPrime: null
+    regional: {
+        souhaiteExaminer: null,
+        type: null // investissement | installation | maec_forfaitaire | api | prm | gardiennage | betteraves | leader | cooperation | formation | autre
     }
-
 };
 
-
-/* =========================================================
-   2. PROFIL ACTUEL
-========================================================= */
-
-let profilExploitation = JSON.parse(
-    JSON.stringify(PROFIL_INITIAL)
-);
-
-
-/* =========================================================
-   3. OUTILS DE MODIFICATION DU PROFIL
-========================================================= */
-
-
-/**
- * Modifie une valeur du profil à partir d'un chemin.
- *
- * Exemple :
- * modifierProfil("surfaces.sau", 82);
- * modifierProfil("bovins.present", true);
- */
-function modifierProfil(chemin, valeur) {
-
-    const cles = chemin.split(".");
-
-    let cible = profilExploitation;
-
-    for (let i = 0; i < cles.length - 1; i++) {
-
-        if (cible[cles[i]] === undefined) {
-            console.warn(
-                "Chemin profil inexistant :",
-                chemin
-            );
-            return;
-        }
-
-        cible = cible[cles[i]];
-    }
-
-    cible[cles[cles.length - 1]] = valeur;
+function cloner(objet) {
+    return JSON.parse(JSON.stringify(objet));
 }
 
+function fusionnerProfondement(cible, source) {
+    if (!source || typeof source !== "object") return cible;
 
-/**
- * Lit une valeur du profil.
- *
- * Exemple :
- * const sau = lireProfil("surfaces.sau");
- */
-function lireProfil(chemin) {
-
-    const cles = chemin.split(".");
-
-    let valeur = profilExploitation;
-
-    for (const cle of cles) {
-
+    Object.keys(source).forEach(cle => {
+        const valeur = source[cle];
         if (
-            valeur === undefined ||
-            valeur === null ||
-            valeur[cle] === undefined
+            valeur &&
+            typeof valeur === "object" &&
+            !Array.isArray(valeur) &&
+            cible[cle] &&
+            typeof cible[cle] === "object"
         ) {
-            return null;
+            fusionnerProfondement(cible[cle], valeur);
+        } else {
+            cible[cle] = valeur;
         }
+    });
 
-        valeur = valeur[cle];
-    }
-
-    return valeur;
+    return cible;
 }
 
+let profilExploitation = cloner(PROFIL_INITIAL);
 
-/* =========================================================
-   4. REMISE À ZÉRO
-========================================================= */
-
-function reinitialiserProfil() {
-
-    profilExploitation = JSON.parse(
-        JSON.stringify(PROFIL_INITIAL)
-    );
-
-    supprimerProfilSauvegarde();
+function lireProfil(chemin) {
+    return chemin.split(".").reduce((objet, cle) => {
+        if (objet === null || objet === undefined) return undefined;
+        return objet[cle];
+    }, profilExploitation);
 }
 
+function modifierProfil(chemin, valeur) {
+    const parties = chemin.split(".");
+    let objet = profilExploitation;
 
-/* =========================================================
-   5. SAUVEGARDE LOCALE
-========================================================= */
+    parties.slice(0, -1).forEach(cle => {
+        if (!objet[cle] || typeof objet[cle] !== "object") objet[cle] = {};
+        objet = objet[cle];
+    });
 
-const CLE_STOCKAGE_PROFIL =
-    "assistant-pac-2026-profil";
-
+    objet[parties[parties.length - 1]] = valeur;
+}
 
 function sauvegarderProfilLocalement() {
-
     try {
-
-        localStorage.setItem(
-            CLE_STOCKAGE_PROFIL,
-            JSON.stringify(profilExploitation)
-        );
-
-        return true;
-
+        localStorage.setItem(CLE_STOCKAGE_PROFIL, JSON.stringify(profilExploitation));
     } catch (erreur) {
-
-        console.error(
-            "Impossible de sauvegarder le profil.",
-            erreur
-        );
-
-        return false;
+        console.warn("Impossible de sauvegarder le profil localement.", erreur);
     }
 }
-
 
 function chargerProfilLocal() {
-
     try {
-
-        const profilSauvegarde =
-            localStorage.getItem(CLE_STOCKAGE_PROFIL);
-
-        if (!profilSauvegarde) {
-            return false;
-        }
-
-        profilExploitation =
-            JSON.parse(profilSauvegarde);
-
-        return true;
-
+        const brut = localStorage.getItem(CLE_STOCKAGE_PROFIL);
+        if (!brut) return profilExploitation;
+        const sauvegarde = JSON.parse(brut);
+        profilExploitation = fusionnerProfondement(cloner(PROFIL_INITIAL), sauvegarde);
     } catch (erreur) {
-
-        console.error(
-            "Impossible de charger le profil.",
-            erreur
-        );
-
-        return false;
+        console.warn("Impossible de charger le profil local.", erreur);
+        profilExploitation = cloner(PROFIL_INITIAL);
     }
+    return profilExploitation;
 }
 
-
-function supprimerProfilSauvegarde() {
-
-    localStorage.removeItem(
-        CLE_STOCKAGE_PROFIL
-    );
+function reinitialiserProfil() {
+    profilExploitation = cloner(PROFIL_INITIAL);
+    try {
+        localStorage.removeItem(CLE_STOCKAGE_PROFIL);
+    } catch (_) {}
+    return profilExploitation;
 }
 
-
-/* =========================================================
-   6. FONCTIONS UTILES
-========================================================= */
-
-
-/**
- * Retourne true si au moins un DPB
- * peut être considéré comme activé.
- */
-function aDesDPBActives() {
-
-    return (
-        profilExploitation.dpb.nombreDPBActives !== null &&
-        profilExploitation.dpb.nombreDPBActives > 0
-    );
+function nombreOuZero(valeur) {
+    const nombre = Number(valeur);
+    return Number.isFinite(nombre) ? nombre : 0;
 }
 
-
-/**
- * Retourne le nombre maximal d'hectares
- * potentiellement couverts par les DPB.
- */
-function surfacePotentiellementCouverteParDPB() {
-
-    const surface =
-        profilExploitation.surfaces.surfaceAdmissible;
-
-    const dpb =
-        profilExploitation.dpb.nombreDPBActives;
-
-    if (surface === null || dpb === null) {
-        return null;
-    }
-
-    return Math.min(surface, dpb);
+function estRenseigne(valeur) {
+    return valeur !== null && valeur !== undefined && valeur !== "";
 }
 
-
-/**
- * Calcule automatiquement le ratio
- * de productivité ovine lorsque les données
- * nécessaires sont connues.
- */
-function calculerRatioProductiviteOvine() {
-
-    const brebis =
-        profilExploitation.ovins.nombreBrebis;
-
-    const agneaux =
-        profilExploitation.ovins.nombreAgneauxVendusNMoins1;
-
-    if (
-        brebis === null ||
-        agneaux === null ||
-        brebis <= 0
-    ) {
-        return null;
-    }
-
-    const ratio = agneaux / brebis;
-
-    profilExploitation.ovins.ratioProductivite =
-        ratio;
-
-    return ratio;
+function sommeSurfacesFruitsTransformes() {
+    const p = profilExploitation.productionsVegetales.fruitsTransformes;
+    return [p.pruneEnte, p.ceriseBigarreau, p.poireWilliams, p.pechePavie, p.tomateIndustrie]
+        .reduce((total, valeur) => total + nombreOuZero(valeur), 0);
 }
 
-
-/**
- * Calcule la surface totale de maraîchage
- * saisie dans le profil.
- */
 function calculerSurfaceMaraichage() {
-
-    const legumes =
-        profilExploitation.productionsVegetales
-            .maraichage.surfaceLegumesFrais || 0;
-
-    const fruits =
-        profilExploitation.productionsVegetales
-            .maraichage.surfacePetitsFruitsRouges || 0;
-
-    return legumes + fruits;
+    const p = profilExploitation.productionsVegetales.maraichage;
+    return nombreOuZero(p.surfaceLegumesFrais) + nombreOuZero(p.surfacePetitsFruitsRouges);
 }
 
+function aDesDPBActives() {
+    return nombreOuZero(profilExploitation.dpb.nombreDPBActives) > 0;
+}
 
-/**
- * Indique si le profil contient encore
- * des informations essentielles manquantes.
- */
-function profilMinimumComplet() {
+function estCorse() {
+    return profilExploitation.general.territoire === "Corse";
+}
 
-    return (
-        profilExploitation.general.statutJuridique !== null &&
-        profilExploitation.agriculteurActif.statut !== null &&
-        profilExploitation.surfaces.sau !== null &&
-        profilExploitation.surfaces.surfaceAdmissible !== null
-    );
+function estHexagone() {
+    return profilExploitation.general.territoire === "Hexagone";
+}
+
+function normaliserTexte(texte) {
+    return String(texte || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
 }

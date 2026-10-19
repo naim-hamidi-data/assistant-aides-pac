@@ -1,8 +1,3 @@
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        initialiserQuestionnaire();
-
-    }
-);
+document.addEventListener("DOMContentLoaded", () => {
+    initialiserQuestionnaire();
+});

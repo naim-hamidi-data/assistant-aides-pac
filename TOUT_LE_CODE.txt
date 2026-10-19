@@ -1,0 +1,3277 @@
+
+==========================================================================================
+FICHIER : index.html
+==========================================================================================
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Assistant d'orientation et de simulation des aides PAC 2026.">
+    <title>Assistant & Simulateur d'aides PAC 2026</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="#">Assistant PAC</a>
+        <div class="topbar-actions">
+            <span class="campaign">Campagne 2026</span>
+            <button id="reset-button" class="text-button" type="button">Réinitialiser</button>
+        </div>
+    </div>
+</header>
+
+<main class="page">
+    <section class="hero">
+        <span class="eyebrow">ASSISTANT & SIMULATEUR</span>
+        <h1>Quelles aides PAC correspondent à votre exploitation ?</h1>
+        <p>
+            Décrivez votre exploitation. L'outil identifie les dispositifs à examiner et estime les montants
+            lorsque les informations du guide permettent un calcul suffisamment explicite.
+        </p>
+    </section>
+
+    <section class="scope-banner">
+        <strong>Périmètre</strong>
+        <p>
+            Cette version est fondée sur le guide ministériel « PAC 2023-2027 », version avril 2026.
+            Les montants 2024 ou 2025 restent explicitement présentés comme références lorsqu'un montant 2026
+            n'est pas fourni. Les paramètres locaux ne sont pas inventés.
+        </p>
+    </section>
+
+    <section id="questionnaire-card" class="questionnaire-card">
+        <div class="progress-header">
+            <span id="step-counter">Étape 1</span>
+        </div>
+        <div class="progress-track">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+
+        <div class="question-header">
+            <h2 id="question-title"></h2>
+            <p id="question-subtitle"></p>
+        </div>
+
+        <div id="questions-container" class="questions-container"></div>
+
+        <div class="question-navigation">
+            <button id="previous-button" type="button" class="secondary-button">Précédent</button>
+            <button id="next-button" type="button" class="primary-button">Continuer</button>
+        </div>
+    </section>
+
+    <section id="results" class="results" style="display:none"></section>
+
+    <section class="disclaimer">
+        <strong>À savoir</strong>
+        <p>
+            L'outil fournit une orientation et, lorsque possible, une estimation. Il ne constitue ni une attestation
+            de conformité ni une décision d'éligibilité administrative.
+        </p>
+        <p>Les réponses sont enregistrées uniquement dans le stockage local de votre navigateur.</p>
+    </section>
+</main>
+
+<script src="data/aides.js"></script>
+<script src="data/parametres-2026.js"></script>
+<script src="modules/profil.js"></script>
+<script src="modules/eligibility.js"></script>
+<script src="modules/calcul.js"></script>
+<script src="modules/questionnaire.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
+
+
+==========================================================================================
+FICHIER : style.css
+==========================================================================================
+
+* { box-sizing: border-box; }
+
+:root {
+    --bg: #f5f5f2;
+    --card: #ffffff;
+    --text: #1d1d1f;
+    --muted: #6e6e73;
+    --border: #e2e2df;
+    --green: #315c3c;
+    --green-soft: #edf4ef;
+    --amber: #9a6b1e;
+    --amber-soft: #fff7e8;
+    --danger: #8b2d2d;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+}
+
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255,255,255,.9);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(0,0,0,.06);
+}
+
+.topbar-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 15px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.brand {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.topbar-actions { display: flex; align-items: center; gap: 12px; }
+
+.campaign {
+    display: inline-flex;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: var(--green-soft);
+    color: var(--green);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.text-button {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    padding: 7px 4px;
+}
+
+.page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 58px 24px 100px;
+}
+
+.hero { margin-bottom: 32px; }
+
+.eyebrow {
+    display: inline-block;
+    color: #55755f;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    margin-bottom: 12px;
+}
+
+.hero h1 {
+    max-width: 760px;
+    margin: 0 0 18px;
+    font-size: clamp(38px, 6vw, 62px);
+    line-height: 1.02;
+    letter-spacing: -.04em;
+}
+
+.hero p {
+    max-width: 720px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 18px;
+}
+
+.scope-banner, .notice, .disclaimer {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px 20px;
+    background: #ececea;
+    color: #55565a;
+    font-size: 13px;
+}
+
+.scope-banner { margin-bottom: 26px; }
+.scope-banner p, .disclaimer p { margin: 6px 0 0; }
+
+.questionnaire-card {
+    background: var(--card);
+    border: 1px solid rgba(0,0,0,.06);
+    border-radius: 28px;
+    padding: 34px;
+    box-shadow: 0 12px 42px rgba(0,0,0,.055);
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.progress-track {
+    height: 5px;
+    margin: 10px 0 34px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #ececef;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: var(--green);
+    transition: width .25s ease;
+}
+
+.question-header { margin-bottom: 28px; }
+.question-header h2 {
+    margin: 0 0 8px;
+    font-size: 30px;
+    letter-spacing: -.025em;
+}
+.question-header p { margin: 0; color: var(--muted); }
+
+.questions-container {
+    display: grid;
+    gap: 14px;
+}
+
+.question-item {
+    padding: 19px;
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    background: #fbfbfa;
+}
+
+.question-label {
+    display: block;
+    margin-bottom: 11px;
+    font-weight: 650;
+    font-size: 15px;
+}
+
+.question-help {
+    margin: 9px 0 0;
+    color: #7a7a7e;
+    font-size: 13px;
+}
+
+input, select {
+    width: 100%;
+    min-height: 47px;
+    padding: 0 13px;
+    border: 1px solid #d4d4d2;
+    border-radius: 11px;
+    background: #fff;
+    color: var(--text);
+    outline: none;
+}
+
+input:focus, select:focus {
+    border-color: #63806b;
+    box-shadow: 0 0 0 3px rgba(49,92,60,.10);
+}
+
+.input-with-suffix {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-suffix {
+    min-width: max-content;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.yesno-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.answer-button {
+    min-height: 46px;
+    border: 1px solid #d4d4d2;
+    border-radius: 11px;
+    background: #fff;
+    color: #333;
+}
+
+.answer-button:hover { border-color: #999; }
+.answer-button.selected {
+    border-color: var(--green);
+    background: var(--green-soft);
+    color: #21472c;
+    font-weight: 700;
+}
+
+.question-navigation, .results-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 28px;
+}
+
+.primary-button, .secondary-button, .danger-button {
+    min-height: 47px;
+    padding: 0 20px;
+    border-radius: 999px;
+    font-weight: 650;
+}
+
+.primary-button {
+    margin-left: auto;
+    border: 0;
+    background: #1d1d1f;
+    color: white;
+}
+.primary-button:hover { background: #343438; }
+
+.secondary-button {
+    border: 1px solid #d4d4d2;
+    background: #fff;
+    color: #333;
+}
+
+.danger-button {
+    border: 1px solid #e1c8c8;
+    background: #fffafa;
+    color: var(--danger);
+}
+
+.results { display: grid; gap: 15px; }
+.results-header { margin-bottom: 4px; }
+.results-header h2 {
+    margin: 4px 0 10px;
+    font-size: 40px;
+    letter-spacing: -.03em;
+}
+.results-header p { max-width: 680px; color: var(--muted); }
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 8px 0 0;
+}
+
+.summary-card {
+    padding: 17px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid var(--border);
+}
+.summary-card span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+.summary-card strong { font-size: 22px; }
+.summary-note { margin: 0 0 10px; color: var(--muted); font-size: 12px; }
+
+.result-card {
+    padding: 23px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 19px;
+}
+.result-card.success { border-left: 4px solid #4f775b; }
+.result-card.warning { border-left: 4px solid #c28c31; }
+
+.result-status {
+    color: #68706a;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    margin-bottom: 7px;
+}
+
+.result-card h3 { margin: 0 0 10px; font-size: 20px; }
+.result-amount { margin-top: 8px; font-size: 30px; font-weight: 760; letter-spacing: -.025em; }
+.result-reference { color: #7d7d81; font-size: 12px; margin-bottom: 14px; }
+.result-details { margin-top: 13px; }
+.result-details strong { display: block; margin-bottom: 5px; font-size: 13px; }
+.result-details p { margin: 4px 0; color: #555; font-size: 14px; }
+
+.result-warnings {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--amber-soft);
+    color: #71521b;
+    font-size: 13px;
+}
+.result-warnings p { margin: 4px 0; }
+.result-source { margin-top: 15px; color: #88888c; font-size: 11px; }
+
+.results-section-title { margin: 26px 0 2px; }
+.warning-notice { background: var(--amber-soft); color: #6f531d; margin-bottom: 5px; }
+
+.not-retained {
+    margin-top: 12px;
+    padding: 17px;
+    border-radius: 15px;
+    background: #ececea;
+    color: #666;
+}
+.not-retained summary { cursor: pointer; font-weight: 650; }
+.not-retained-item {
+    display: grid;
+    gap: 2px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+}
+.not-retained-item span { font-size: 12px; color: #808084; }
+
+.disclaimer { margin-top: 34px; }
+
+@media (max-width: 680px) {
+    .page { padding: 38px 15px 70px; }
+    .topbar-inner { padding: 13px 15px; }
+    .campaign { display: none; }
+    .hero h1 { font-size: 39px; }
+    .hero p { font-size: 16px; }
+    .questionnaire-card { padding: 21px; border-radius: 21px; }
+    .question-header h2 { font-size: 26px; }
+    .question-item { padding: 16px; }
+    .question-navigation, .results-actions { flex-wrap: wrap; }
+    .results-header h2 { font-size: 32px; }
+}
+
+
+==========================================================================================
+FICHIER : script.js
+==========================================================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+    initialiserQuestionnaire();
+});
+
+
+==========================================================================================
+FICHIER : data/aides.js
+==========================================================================================
+
+/* =========================================================
+   ASSISTANT & SIMULATEUR D'AIDES PAC 2026
+   RÉFÉRENTIEL DES AIDES
+
+   Source de référence :
+   « La nouvelle politique agricole commune – PAC 2023-2027 »
+   Version avril 2026 – Ministère de l'Agriculture.
+
+   Les dispositifs pour lesquels le guide ne fournit pas de
+   formule complète sont conservés comme aides d'orientation.
+========================================================= */
+
+const AIDES_PAC = [
+    {
+        id: "aide_base",
+        nom: "Aide de base au revenu",
+        abreviation: "DPB",
+        categorie: "Paiements découplés",
+        pilier: 1,
+        calculable: true,
+        source: "Fiche Aide de base au revenu – Annexe 5"
+    },
+    {
+        id: "ecoregime",
+        nom: "Écorégime",
+        categorie: "Paiements découplés",
+        pilier: 1,
+        calculable: true,
+        source: "Fiche Écorégime – Annexe 6"
+    },
+    {
+        id: "aide_redistributive",
+        nom: "Aide redistributive complémentaire au revenu",
+        categorie: "Paiements découplés",
+        pilier: 1,
+        calculable: true,
+        source: "Fiche Aide redistributive complémentaire au revenu"
+    },
+    {
+        id: "acja",
+        nom: "Aide complémentaire au revenu pour les jeunes agriculteurs",
+        abreviation: "ACJA",
+        categorie: "Paiements découplés",
+        pilier: 1,
+        calculable: true,
+        source: "Fiche Aide complémentaire au revenu pour les jeunes agriculteurs"
+    },
+
+    /* AIDES COUPLÉES VÉGÉTALES */
+    {
+        id: "legumineuses_graines",
+        nom: "Légumineuses à graines, déshydratation et semences",
+        categorie: "Aides couplées végétales",
+        pilier: 1,
+        calculable: true,
+        source: "Annexe 7 – Paiements couplés végétaux"
+    },
+    {
+        id: "legumineuses_fourrageres",
+        nom: "Légumineuses fourragères",
+        categorie: "Aides couplées végétales",
+        pilier: 1,
+        calculable: true,
+        source: "Annexe 7 – Paiements couplés végétaux"
+    },
+    {
+        id: "ble_dur",
+        nom: "Aide couplée au blé dur",
+        categorie: "Aides couplées végétales",
+        pilier: 1,
+        calculable: true,
+        source: "Annexe 7 – Paiements couplés végétaux"
+    },
+    {
+        id: "pomme_terre_feculiere",
+        nom: "Aide à la pomme de terre féculière",
+        categorie: "Aides couplées végétales",
+        pilier: 1,
+        calculable: true,
+        source: "Annexe 7 – Paiements couplés végétaux"
+    },
+    {
+        id: "riz",
+        nom: "Aide couplée au riz",
+        categorie: "Aides couplées végétales",
+        pilier: 1,
+        calculable: true,
+        source: "Annexe 7 – Paiements couplés végétaux"
+    },
+    {
+        id: "houblon",
+        nom: "Aide couplée au houblon",
+        categorie: "Aides couplées végétales",
+        pilier: 1,
+        calculable: true,
+        source: "Annexe 7 – Paiements couplés végétaux"
+    },
+    {
+        id: "semences_graminees",
+        nom: "Aide aux semences de graminées prairiales",
+        categorie: "Aides couplées végétales",
+        pilier: 1,
+        calculable: true,
+        source: "Annexe 7 – Paiements couplés végétaux"
+    },
+    {
+        id: "chanvre",
+        nom: "Aide couplée au chanvre",
+        categorie: "Aides couplées végétales",
+        pilier: 1,
+        calculable: true,
+        source: "Annexe 7 – Paiements couplés végétaux"
+    },
+    {
+        id: "petit_maraichage",
+        nom: "Aide couplée au petit maraîchage",
+        categorie: "Aides couplées végétales",
+        pilier: 1,
+        calculable: true,
+        source: "Annexe 7 – Paiements couplés végétaux"
+    },
+    {
+        id: "fruits_transformes",
+        nom: "Aides aux productions destinées à la transformation",
+        categorie: "Aides couplées végétales",
+        pilier: 1,
+        calculable: true,
+        source: "Annexe 7 – Paiements couplés végétaux"
+    },
+
+    /* AIDES COUPLÉES ANIMALES */
+    {
+        id: "bovins_hexagone",
+        nom: "Aide bovine – Hexagone",
+        categorie: "Aides couplées animales",
+        pilier: 1,
+        calculable: true,
+        source: "Annexe 8 – Paiements couplés animaux"
+    },
+    {
+        id: "veaux_qualite",
+        nom: "Aide aux veaux sous la mère et aux veaux bio",
+        categorie: "Aides couplées animales",
+        pilier: 1,
+        calculable: true,
+        source: "Annexe 8 – Paiements couplés animaux"
+    },
+    {
+        id: "ovins_hexagone",
+        nom: "Aide ovine – Hexagone",
+        categorie: "Aides couplées animales",
+        pilier: 1,
+        calculable: true,
+        source: "Annexe 8 – Paiements couplés animaux"
+    },
+    {
+        id: "caprins_hexagone",
+        nom: "Aide caprine – Hexagone",
+        categorie: "Aides couplées animales",
+        pilier: 1,
+        calculable: true,
+        source: "Annexe 8 – Paiements couplés animaux"
+    },
+    {
+        id: "bovins_corse",
+        nom: "Aide bovine – Corse",
+        categorie: "Aides couplées animales",
+        pilier: 1,
+        calculable: true,
+        source: "Annexe 8 – Paiements couplés animaux"
+    },
+    {
+        id: "petits_ruminants_corse",
+        nom: "Aide ovine et caprine – Corse",
+        categorie: "Aides couplées animales",
+        pilier: 1,
+        calculable: "partiellement",
+        source: "Annexe 8 – Paiements couplés animaux"
+    },
+
+    /* DÉVELOPPEMENT RURAL SURFACIQUE */
+    {
+        id: "ichn_animale",
+        nom: "ICHN animale",
+        categorie: "Développement rural",
+        pilier: 2,
+        calculable: "partiellement",
+        source: "Annexe 9 – ICHN"
+    },
+    {
+        id: "ichn_vegetale",
+        nom: "ICHN végétale",
+        categorie: "Développement rural",
+        pilier: 2,
+        calculable: true,
+        source: "Annexe 9 – ICHN"
+    },
+    {
+        id: "cab",
+        nom: "Aide à la conversion à l'agriculture biologique",
+        abreviation: "CAB",
+        categorie: "Développement rural",
+        pilier: 2,
+        calculable: true,
+        source: "Annexe 11 – Aide à la conversion à l'agriculture biologique"
+    },
+    {
+        id: "maec_surfaciques",
+        nom: "Mesures agroenvironnementales et climatiques surfaciques",
+        abreviation: "MAEC",
+        categorie: "Développement rural",
+        pilier: 2,
+        calculable: false,
+        source: "Annexe 10 – MAEC"
+    },
+
+    /* GESTION DES RISQUES ET PRÉDATION */
+    {
+        id: "assurance_mrc",
+        nom: "Aide à l'assurance multirisques climatique des récoltes",
+        categorie: "Gestion des risques",
+        pilier: 2,
+        calculable: "reference",
+        source: "Fiche Gestion des risques"
+    },
+    {
+        id: "predation",
+        nom: "Aide à la protection des troupeaux contre la prédation",
+        categorie: "Prédation",
+        pilier: 2,
+        calculable: false,
+        source: "Fiche Protection contre la prédation du loup et de l'ours"
+    },
+
+    /* PROGRAMMES SECTORIELS */
+    {
+        id: "programmes_sectoriels",
+        nom: "Programmes sectoriels",
+        categorie: "Interventions sectorielles",
+        pilier: 1,
+        calculable: false,
+        source: "Fiche Programmes sectoriels – vin, fruits et légumes, huile d'olive, apiculture, protéines végétales, horticulture, veau Label rouge, lapin et riz"
+    },
+
+    /* AIDES RÉGIONALES */
+    {
+        id: "aides_regionales",
+        nom: "Aides régionales du Feader",
+        categorie: "Développement rural régional",
+        pilier: 2,
+        calculable: false,
+        source: "Fiche Les aides des Régions"
+    }
+];
+
+function obtenirAide(id) {
+    return AIDES_PAC.find(aide => aide.id === id) || null;
+}
+
+
+==========================================================================================
+FICHIER : data/parametres-2026.js
+==========================================================================================
+
+/* =========================================================
+   PARAMÈTRES PAC 2026
+
+   Principe : ne jamais transformer automatiquement une
+   référence 2024/2025 en montant 2026 lorsqu'une valeur
+   annuelle 2026 n'est pas fournie par la source.
+========================================================= */
+
+const PARAMETRES_PAC_2026 = {
+    campagne: 2026,
+    versionSource: "Avril 2026",
+
+    aideBase: {
+        reference2024: {
+            valeurMoyenneDPBHexagone: 128.80,
+            valeurMoyenneDPBCorse: 144.64
+        }
+    },
+
+    ecoregime: {
+        niveauBase2026: null,
+        niveauSuperieur2026: null,
+        niveauBio2026: null,
+        bonusHaies2026: null,
+        reference2024: {
+            // Le guide comporte deux valeurs pour le niveau de base : 48,23 et 48,35 €/ha.
+            // Le simulateur n'en choisit aucune automatiquement.
+            niveauBase: null,
+            niveauBaseFicheSynthese: 48.23,
+            niveauBaseAnnexe6: 48.35,
+            niveauSuperieur: 66.17,
+            niveauBio: 96.17,
+            bonusHaies: 7.00
+        }
+    },
+
+    aideRedistributive: {
+        montant2026: null,
+        reference2024: 50.26,
+        hectaresMaximum: 52
+    },
+
+    ACJA: {
+        montant2026: null,
+        reference2024: 4469,
+        dureeMaximumAnnees: 5
+    },
+
+    aidesCouplees: {
+        vegetales: {
+            legumineusesGraines: { montant2026: null, reference2024: 131.50 },
+            legumineusesFourrageres: {
+                plainePiemont: { montant2026: null, reference2024: 131.50 },
+                montagne: { montant2026: null, reference2024: 152.00 }
+            },
+            bleDur: { montant2026: null, reference2024: 65.00 },
+            pommeTerreFeculiere: { montant2026: null, reference2024: 92.16 },
+            riz: { montant2026: null, reference2024: 143.00 },
+            houblon: { montant2026: null, reference2024: 538.19 },
+            semencesGraminees: { montant2026: null, reference2024: 48.27 },
+            chanvre: { montant2026: null, reference2024: 63.00 },
+            maraichage: { montant2026: null, reference2024: 1742.44 },
+            fruitsTransformes: {
+                pruneEnte: { montant2026: null, reference2024: 990.00 },
+                ceriseBigarreau: { montant2026: null, reference2024: 647.30 },
+                poireWilliams: { montant2026: null, reference2024: 1296.60 },
+                pechePavie: { montant2026: null, reference2024: 561.52 },
+                tomateIndustrie: { montant2026: null, reference2024: 1146.50 }
+            }
+        },
+        animales: {
+            bovinsHexagone: {
+                base: { montant2026: null, reference2024: 58.37 },
+                superieur: { montant2026: null, reference2024: 107.01 }
+            },
+            veauxQualite: { montant2026: null, reference2024: 68.70 },
+            ovinsHexagone: {
+                base: { montant2026: null, reference2024: 24.00 },
+                nouveauProducteur: { montant2026: null, reference2024: 6.00 },
+                majoration500Premieres: { montant2026: null, reference2024: 2.00 }
+            },
+            caprinsHexagone: { montant2026: null, reference2024: 14.56 },
+            bovinsCorse: {
+                base: { montant2026: null, reference2024: 50.00 },
+                superieur: { montant2026: null, reference2024: 101.67 }
+            },
+            petitsRuminantsCorse: {
+                brebisBase: { montant2026: null, reference2024: 25.05 },
+                chevreBase: { montant2026: null, reference2024: 17.42 },
+                brebisSuperieur: { montant2026: null, reference2024: 50.09 },
+                // Le guide affiche 34,85 €/chèvre mais l'intitule à nouveau « montant de base ».
+                // Par prudence, le simulateur n'utilise pas cette valeur comme niveau supérieur automatique.
+                chevreValeurAmbigue: { montant2026: null, reference2024: 34.85 }
+            }
+        }
+    },
+
+    ICHN: {
+        animale: {
+            montantBaseParHa: 70,
+            surfaceMaximum: 75,
+            trancheVariablePleine: 25,
+            trancheVariableReduiteJusqua: 50,
+            coefficientDeuxiemeTranche: 2 / 3
+        },
+        vegetale: {
+            montantZoneSecheParHa: 297,
+            montantAutreZoneParHa: 35,
+            surfaceMaximum: 50,
+            premiereTranche: 25,
+            coefficientDeuxiemeTranche: 2 / 3
+        }
+    },
+
+    CAB: {
+        engagementAnnees: 5,
+        landesEstivesParcours: 44,
+        prairiesAvecElevage: 130,
+        culturesAnnuellesLegumineusesJacheresSemences: 350,
+        viticulture: 350,
+        ppamListees: 350,
+        legumesPleinChampBetterave: 450,
+        maraichageArboricultureAutresPpamSemences: 900
+    },
+
+    assuranceMRC: {
+        taux2026: null,
+        reference2025: 0.70
+    },
+
+    programmesSectoriels: {
+        vin: { tauxMinimum: 0.15, tauxMaximum: 0.50 },
+        apiculture: { tauxMinimum: 0.40, tauxMaximum: 1.00 },
+        programmesOperationnels: { tauxMinimum: 0.50, tauxMaximum: 0.60 }
+    }
+};
+
+
+==========================================================================================
+FICHIER : modules/profil.js
+==========================================================================================
+
+/* =========================================================
+   PROFIL D'EXPLOITATION
+========================================================= */
+
+const CLE_STOCKAGE_PROFIL = "assistant_pac_2026_profil_v2";
+
+const PROFIL_INITIAL = {
+    general: {
+        campagne: 2026,
+        territoire: "Hexagone", // Hexagone | Corse | Outre-mer
+        region: null,
+        departement: null,
+        commune: null,
+        statutJuridique: null,
+        gaecTotal: false,
+        nombreAssocies: 1
+    },
+
+    agriculteurActif: {
+        statut: null // true | false | null
+    },
+
+    surfaces: {
+        sau: null,
+        surfaceAdmissible: null,
+        terresArables: null,
+        prairiesPermanentes: null,
+        culturesPermanentes: null,
+        surfaceFourragere: null,
+        pourcentageHaiesSAU: null,
+        pourcentageHaiesTerresArables: null
+    },
+
+    dpb: {
+        detientDPB: null,
+        nombreDPB: null,
+        nombreDPBActives: null,
+        valeurMoyenneDPB: null,
+        valeurTotaleDPB: null
+    },
+
+    installation: {
+        premiereInstallation: null,
+        anneeInstallation: null,
+        age: null,
+        diplomeAgricoleNiveau4OuPlus: null,
+        diplomeNiveau3OuPlus: null,
+        experienceAgricoleMois: null,
+        nombreAssociesJAEligibles: null
+    },
+
+    environnement: {
+        agricultureBiologique: null,
+        hveRenovee: null,
+        certificationCE2Plus: null,
+        certificationGestionDurableHaies: null,
+        maecEntretienLigneux: null
+    },
+
+    ecoregime: {
+        pointsDiversification: null,
+        pourcentagePrairiesNonLabourees: null,
+        pourcentageInterRangsCouverts: null,
+        pourcentageIAEEtJacheresSAU: null
+    },
+
+    productionsVegetales: {
+        legumineusesGraines: {
+            surface: null,
+            destination: null, // graines | deshydratation | semences
+            contratDeshydratation: null,
+            melangeProteagineuxPourcent: null
+        },
+        legumineusesFourrageres: {
+            surface: null,
+            zone: null, // plaine_piemont | montagne
+            ugb: null,
+            contratEleveur5UGB: null,
+            melangeLegumineusesPourcent: null,
+            melangeAvecGraminees: null,
+            anneeSemis: null
+        },
+        bleDur: {
+            surface: null,
+            contratCollecteur: null
+        },
+        pommeTerreFeculiere: {
+            surface: null,
+            contratTransformation: null
+        },
+        riz: {
+            surface: null
+        },
+        houblon: {
+            surface: null
+        },
+        semencesGraminees: {
+            surface: null,
+            contratCulture: null,
+            varieteAutorisee: null,
+            usageGazonUniquement: null
+        },
+        chanvre: {
+            surface: null,
+            contratTransformationOuSemences: null,
+            thcConforme: null
+        },
+        maraichage: {
+            surfaceLegumesFrais: null,
+            surfacePetitsFruitsRouges: null
+        },
+        fruitsTransformes: {
+            pruneEnte: null,
+            ceriseBigarreau: null,
+            poireWilliams: null,
+            pechePavie: null,
+            tomateIndustrie: null,
+            deboucheIndustriel: null
+        }
+    },
+
+    bovins: {
+        present: null,
+        ugbTotal: null,
+        ugbNiveauSuperieur: null,
+        ugbNiveauBase: null,
+        animauxDetenus6Mois: null,
+        identificationConforme: null
+    },
+
+    veauxQualite: {
+        present: null,
+        nombreVeauxEligibles: null,
+        labelRouge: null,
+        igpRoseePyreneesCatalanes: null,
+        agricultureBiologique: null,
+        detention45Jours: null,
+        identificationConforme: null
+    },
+
+    ovins: {
+        present: null,
+        nombreBrebis: null,
+        nombreBrebisPresentes1JanvierNMoins1: null,
+        nombreAgneauxVendusNMoins1: null,
+        detention100Jours: null,
+        identificationConforme: null,
+        nouveauProducteur: null
+    },
+
+    caprins: {
+        present: null,
+        nombreChevres: null,
+        detention100Jours: null,
+        identificationConforme: null
+    },
+
+    petitsRuminantsCorse: {
+        nombreBrebis: null,
+        nombreChevres: null,
+        sousAOPBrocciu: null,
+        detention100Jours: null,
+        identificationConforme: null
+    },
+
+    ichn: {
+        zoneEligible: null,
+        typeZone: null, // haute_montagne | montagne | piemont | zone_defavorisee_simple
+        zoneSeche: null,
+        pourcentageSAUZoneDefavorisee: null,
+        siegeEnZoneDefavorisee: null,
+        partRevenuAgricolePourcent: null,
+        aideAnimale: null,
+        ugb: null,
+        surfacesFourrageresEligibles: null,
+        montantVariableSousZone: null,
+        coefficientModulationChargement: null,
+        aideVegetale: null,
+        surfacesVegetalesEligibles: null
+    },
+
+    conversionBio: {
+        enConversion: null,
+        premiereOuDeuxiemeAnnee: null,
+        landesEstivesParcours: null,
+        prairiesAvecElevage: null,
+        culturesAnnuellesLegumineusesJacheresSemences: null,
+        viticulture: null,
+        ppamListees: null,
+        legumesPleinChampBetterave: null,
+        maraichageArboricultureAutresPpamSemences: null
+    },
+
+    maec: {
+        souhaiteExaminer: null,
+        offreLocaleConnue: null,
+        type: null // systeme | localisee | inconnue
+    },
+
+    assurance: {
+        souscritMRC: null,
+        primeAnnuelle: null
+    },
+
+    predation: {
+        zoneRisque: null
+    },
+
+    programmesSectoriels: {
+        concerne: null,
+        secteur: null, // vin | apiculture | fruits_legumes | huile_olive | proteines | horticulture | veau_label | lapin | riz
+        membreOPAOP: null
+    },
+
+    regional: {
+        souhaiteExaminer: null,
+        type: null // investissement | installation | maec_forfaitaire | api | prm | gardiennage | betteraves | leader | cooperation | formation | autre
+    }
+};
+
+function cloner(objet) {
+    return JSON.parse(JSON.stringify(objet));
+}
+
+function fusionnerProfondement(cible, source) {
+    if (!source || typeof source !== "object") return cible;
+
+    Object.keys(source).forEach(cle => {
+        const valeur = source[cle];
+        if (
+            valeur &&
+            typeof valeur === "object" &&
+            !Array.isArray(valeur) &&
+            cible[cle] &&
+            typeof cible[cle] === "object"
+        ) {
+            fusionnerProfondement(cible[cle], valeur);
+        } else {
+            cible[cle] = valeur;
+        }
+    });
+
+    return cible;
+}
+
+let profilExploitation = cloner(PROFIL_INITIAL);
+
+function lireProfil(chemin) {
+    return chemin.split(".").reduce((objet, cle) => {
+        if (objet === null || objet === undefined) return undefined;
+        return objet[cle];
+    }, profilExploitation);
+}
+
+function modifierProfil(chemin, valeur) {
+    const parties = chemin.split(".");
+    let objet = profilExploitation;
+
+    parties.slice(0, -1).forEach(cle => {
+        if (!objet[cle] || typeof objet[cle] !== "object") objet[cle] = {};
+        objet = objet[cle];
+    });
+
+    objet[parties[parties.length - 1]] = valeur;
+}
+
+function sauvegarderProfilLocalement() {
+    try {
+        localStorage.setItem(CLE_STOCKAGE_PROFIL, JSON.stringify(profilExploitation));
+    } catch (erreur) {
+        console.warn("Impossible de sauvegarder le profil localement.", erreur);
+    }
+}
+
+function chargerProfilLocal() {
+    try {
+        const brut = localStorage.getItem(CLE_STOCKAGE_PROFIL);
+        if (!brut) return profilExploitation;
+        const sauvegarde = JSON.parse(brut);
+        profilExploitation = fusionnerProfondement(cloner(PROFIL_INITIAL), sauvegarde);
+    } catch (erreur) {
+        console.warn("Impossible de charger le profil local.", erreur);
+        profilExploitation = cloner(PROFIL_INITIAL);
+    }
+    return profilExploitation;
+}
+
+function reinitialiserProfil() {
+    profilExploitation = cloner(PROFIL_INITIAL);
+    try {
+        localStorage.removeItem(CLE_STOCKAGE_PROFIL);
+    } catch (_) {}
+    return profilExploitation;
+}
+
+function nombreOuZero(valeur) {
+    const nombre = Number(valeur);
+    return Number.isFinite(nombre) ? nombre : 0;
+}
+
+function estRenseigne(valeur) {
+    return valeur !== null && valeur !== undefined && valeur !== "";
+}
+
+function sommeSurfacesFruitsTransformes() {
+    const p = profilExploitation.productionsVegetales.fruitsTransformes;
+    return [p.pruneEnte, p.ceriseBigarreau, p.poireWilliams, p.pechePavie, p.tomateIndustrie]
+        .reduce((total, valeur) => total + nombreOuZero(valeur), 0);
+}
+
+function calculerSurfaceMaraichage() {
+    const p = profilExploitation.productionsVegetales.maraichage;
+    return nombreOuZero(p.surfaceLegumesFrais) + nombreOuZero(p.surfacePetitsFruitsRouges);
+}
+
+function aDesDPBActives() {
+    return nombreOuZero(profilExploitation.dpb.nombreDPBActives) > 0;
+}
+
+function estCorse() {
+    return profilExploitation.general.territoire === "Corse";
+}
+
+function estHexagone() {
+    return profilExploitation.general.territoire === "Hexagone";
+}
+
+function normaliserTexte(texte) {
+    return String(texte || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+}
+
+
+==========================================================================================
+FICHIER : modules/eligibility.js
+==========================================================================================
+
+/* =========================================================
+   MOTEUR D'ORIENTATION / ÉLIGIBILITÉ INITIALE
+
+   IMPORTANT : le résultat n'est jamais une décision
+   administrative d'éligibilité. Il s'agit d'une orientation
+   à partir des informations saisies et du guide PAC utilisé.
+========================================================= */
+
+const STATUT_AIDE = {
+    A_EXAMINER: "a_examiner",
+    INFORMATIONS_MANQUANTES: "informations_manquantes",
+    NON_RETENUE: "non_retenue"
+};
+
+function creerResultatAide(id, statut, raisons = [], informationsManquantes = [], verifications = [], details = {}) {
+    const aide = obtenirAide(id);
+    return {
+        id,
+        nom: aide ? aide.nom : id,
+        categorie: aide ? aide.categorie : "",
+        statut,
+        raisons,
+        informationsManquantes,
+        verifications,
+        details,
+        source: aide ? aide.source : ""
+    };
+}
+
+function nonRetenue(id, raison) {
+    return creerResultatAide(id, STATUT_AIDE.NON_RETENUE, [], [], raison ? [raison] : []);
+}
+
+function verifierAgriculteurActif() {
+    const statut = profilExploitation.agriculteurActif.statut;
+    if (statut === true) return { valide: true, inconnu: false };
+    if (statut === false) return { valide: false, inconnu: false };
+    return { valide: false, inconnu: true };
+}
+
+function verifierActifPourAide(id) {
+    const actif = verifierAgriculteurActif();
+    if (actif.inconnu) {
+        return creerResultatAide(
+            id,
+            STATUT_AIDE.INFORMATIONS_MANQUANTES,
+            [],
+            ["Statut d'agriculteur actif"]
+        );
+    }
+    if (!actif.valide) return nonRetenue(id, "Le critère d'agriculteur actif n'est pas rempli.");
+    return null;
+}
+
+function valeurPositive(valeur) {
+    return nombreOuZero(valeur) > 0;
+}
+
+function niveauScore(niveau) {
+    return { base: 1, superieur: 2, bio: 3 }[niveau] || 0;
+}
+
+/* =========================================================
+   PAIEMENTS DÉCOUPLÉS
+========================================================= */
+
+function analyserAideBase() {
+    const id = "aide_base";
+    const actif = verifierActifPourAide(id);
+    if (actif) return actif;
+
+    if (profilExploitation.dpb.detientDPB === false) {
+        return nonRetenue(id, "Aucun DPB n'est renseigné.");
+    }
+
+    const manquants = [];
+    if (profilExploitation.dpb.detientDPB === null) manquants.push("Détention de DPB");
+    if (!estRenseigne(profilExploitation.dpb.nombreDPBActives)) manquants.push("Nombre de DPB activés");
+    if (!estRenseigne(profilExploitation.surfaces.surfaceAdmissible)) manquants.push("Surface admissible");
+
+    if (manquants.length) {
+        return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], manquants);
+    }
+
+    if (!aDesDPBActives() || nombreOuZero(profilExploitation.surfaces.surfaceAdmissible) <= 0) {
+        return nonRetenue(id, "Aucun DPB ne peut être activé sur une surface admissible positive.");
+    }
+
+    return creerResultatAide(
+        id,
+        STATUT_AIDE.A_EXAMINER,
+        ["Des DPB activés et une surface admissible sont renseignés."],
+        [],
+        ["La valeur réelle des DPB de l'exploitation reste déterminante pour le montant."]
+    );
+}
+
+function analyserAideRedistributive() {
+    const id = "aide_redistributive";
+    const actif = verifierActifPourAide(id);
+    if (actif) return actif;
+
+    if (!estRenseigne(profilExploitation.dpb.nombreDPBActives)) {
+        return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], ["Nombre de DPB activés"]);
+    }
+    if (!aDesDPBActives()) return nonRetenue(id, "Au moins un DPB ou une fraction de DPB doit être activé.");
+    if (!valeurPositive(profilExploitation.surfaces.surfaceAdmissible)) {
+        return nonRetenue(id, "Aucune surface admissible positive n'est renseignée.");
+    }
+
+    return creerResultatAide(
+        id,
+        STATUT_AIDE.A_EXAMINER,
+        ["Au moins un DPB est activé.", "Une surface admissible est renseignée."],
+        [],
+        profilExploitation.general.gaecTotal ? ["La transparence GAEC doit être appliquée."] : []
+    );
+}
+
+function verifierQualificationJA() {
+    const i = profilExploitation.installation;
+    const exp = nombreOuZero(i.experienceAgricoleMois);
+
+    if (i.diplomeAgricoleNiveau4OuPlus === true) return { valide: true, inconnu: false };
+    if (exp >= 40) return { valide: true, inconnu: false };
+    if (i.diplomeNiveau3OuPlus === true && exp >= 24) return { valide: true, inconnu: false };
+
+    const informationsSuffisantes =
+        i.diplomeAgricoleNiveau4OuPlus !== null &&
+        i.diplomeNiveau3OuPlus !== null &&
+        estRenseigne(i.experienceAgricoleMois);
+
+    return { valide: false, inconnu: !informationsSuffisantes };
+}
+
+function analyserACJA() {
+    const id = "acja";
+    const actif = verifierActifPourAide(id);
+    if (actif) return actif;
+
+    const i = profilExploitation.installation;
+    const manquants = [];
+
+    if (i.premiereInstallation === false) return nonRetenue(id, "La demande ne concerne pas une première installation récente.");
+    if (i.premiereInstallation === null) manquants.push("Première installation");
+    if (!estRenseigne(i.age)) manquants.push("Âge");
+    if (!estRenseigne(i.anneeInstallation)) manquants.push("Année de première installation");
+    if (!estRenseigne(profilExploitation.dpb.nombreDPBActives)) manquants.push("DPB activés");
+
+    const qualification = verifierQualificationJA();
+    if (qualification.inconnu) manquants.push("Diplôme / expérience agricole");
+
+    if (manquants.length) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], manquants);
+
+    if (nombreOuZero(i.age) > 40) return nonRetenue(id, "L'âge renseigné dépasse 40 ans.");
+    if (nombreOuZero(i.anneeInstallation) < 2021 || nombreOuZero(i.anneeInstallation) > 2026) {
+        return nonRetenue(id, "La première installation renseignée n'est pas située dans la période de cinq années civiles précédant 2026 ou en 2026.");
+    }
+    if (!qualification.valide) return nonRetenue(id, "Les conditions de diplôme ou d'expérience renseignées ne permettent pas d'identifier la qualification JA.");
+    if (!aDesDPBActives()) return nonRetenue(id, "Au moins un DPB ou une fraction de DPB doit être activé.");
+
+    const verifications = [];
+    if (profilExploitation.general.statutJuridique && profilExploitation.general.statutJuridique !== "individuel") {
+        verifications.push("Pour une société, vérifier que l'associé conférant le caractère JA respecte bien les critères applicables.");
+    }
+
+    return creerResultatAide(
+        id,
+        STATUT_AIDE.A_EXAMINER,
+        ["Première installation récente.", "Condition d'âge renseignée comme respectée.", "Qualification JA initialement compatible.", "Au moins un DPB est activé."],
+        [],
+        verifications
+    );
+}
+
+/* =========================================================
+   ÉCORÉGIME
+========================================================= */
+
+function categorieSignificative(surfaceCategorie, surfaceAdmissible) {
+    const total = nombreOuZero(surfaceAdmissible);
+    if (total <= 0) return false;
+    return nombreOuZero(surfaceCategorie) / total >= 0.05;
+}
+
+function evaluerVoiePratiques() {
+    const s = profilExploitation.surfaces;
+    const e = profilExploitation.ecoregime;
+    const manquants = [];
+    const niveaux = [];
+    let auMoinsUneCategorie = false;
+
+    if (!valeurPositive(s.surfaceAdmissible)) return { eligible: false, manquants: ["Surface admissible"] };
+
+    if (categorieSignificative(s.terresArables, s.surfaceAdmissible)) {
+        auMoinsUneCategorie = true;
+        if (!estRenseigne(e.pointsDiversification)) manquants.push("Points de diversification des cultures");
+        else if (nombreOuZero(e.pointsDiversification) < 4) return { eligible: false, manquants: [], motif: "La diversification des cultures n'atteint pas 4 points." };
+        else niveaux.push(nombreOuZero(e.pointsDiversification) >= 5 ? "superieur" : "base");
+    }
+
+    if (categorieSignificative(s.prairiesPermanentes, s.surfaceAdmissible)) {
+        auMoinsUneCategorie = true;
+        if (!estRenseigne(e.pourcentagePrairiesNonLabourees)) manquants.push("Pourcentage de prairies permanentes non labourées");
+        else if (nombreOuZero(e.pourcentagePrairiesNonLabourees) < 80) return { eligible: false, manquants: [], motif: "Le taux de prairies permanentes non labourées est inférieur à 80 %." };
+        else niveaux.push(nombreOuZero(e.pourcentagePrairiesNonLabourees) >= 90 ? "superieur" : "base");
+    }
+
+    if (categorieSignificative(s.culturesPermanentes, s.surfaceAdmissible)) {
+        auMoinsUneCategorie = true;
+        if (!estRenseigne(e.pourcentageInterRangsCouverts)) manquants.push("Pourcentage d'inter-rangs couverts");
+        else if (nombreOuZero(e.pourcentageInterRangsCouverts) < 75) return { eligible: false, manquants: [], motif: "La couverture des inter-rangs est inférieure à 75 %." };
+        else niveaux.push(nombreOuZero(e.pourcentageInterRangsCouverts) >= 95 ? "superieur" : "base");
+    }
+
+    if (manquants.length) return { eligible: false, manquants };
+    if (!auMoinsUneCategorie) return { eligible: false, manquants: [], motif: "Aucune catégorie de surface significative n'est renseignée pour évaluer cette voie." };
+
+    const niveau = niveaux.every(n => n === "superieur") ? "superieur" : "base";
+    return { eligible: true, niveau, manquants: [] };
+}
+
+function evaluerVoieCertification() {
+    const env = profilExploitation.environnement;
+    if (env.agricultureBiologique === true) return { eligible: true, niveau: "bio" };
+    if (env.hveRenovee === true) return { eligible: true, niveau: "superieur" };
+    if (env.certificationCE2Plus === true) return { eligible: true, niveau: "base" };
+
+    const inconnu = [env.agricultureBiologique, env.hveRenovee, env.certificationCE2Plus].some(v => v === null);
+    return { eligible: false, manquants: inconnu ? ["Certifications AB / HVE rénovée / CE2+"] : [] };
+}
+
+function evaluerVoieBiodiversite() {
+    const ratio = profilExploitation.ecoregime.pourcentageIAEEtJacheresSAU;
+    if (!estRenseigne(ratio)) return { eligible: false, manquants: ["Pourcentage d'IAE et jachères dans la SAU"] };
+    if (nombreOuZero(ratio) >= 10) return { eligible: true, niveau: "superieur" };
+    if (nombreOuZero(ratio) >= 7) return { eligible: true, niveau: "base" };
+    return { eligible: false, manquants: [] };
+}
+
+function analyserEcoregime() {
+    const id = "ecoregime";
+    const actif = verifierActifPourAide(id);
+    if (actif) return actif;
+
+    if (!estRenseigne(profilExploitation.dpb.nombreDPBActives)) {
+        return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], ["DPB activés"]);
+    }
+    if (!aDesDPBActives()) return nonRetenue(id, "L'accès à l'écorégime suppose de disposer de DPB activables.");
+    if (!valeurPositive(profilExploitation.surfaces.surfaceAdmissible)) return nonRetenue(id, "Aucune surface admissible positive n'est renseignée.");
+
+    const voies = [
+        { id: "pratiques", ...evaluerVoiePratiques() },
+        { id: "certification", ...evaluerVoieCertification() },
+        { id: "biodiversite", ...evaluerVoieBiodiversite() }
+    ];
+
+    const eligibles = voies.filter(v => v.eligible);
+    if (!eligibles.length) {
+        const manquants = [...new Set(voies.flatMap(v => v.manquants || []))];
+        if (manquants.length) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], manquants);
+        return nonRetenue(id, "Aucune des trois voies d'accès ne semble atteindre le niveau de base avec les informations saisies.");
+    }
+
+    eligibles.sort((a, b) => niveauScore(b.niveau) - niveauScore(a.niveau));
+    const meilleure = eligibles[0];
+
+    const s = profilExploitation.surfaces;
+    const env = profilExploitation.environnement;
+    const taSignificatives = categorieSignificative(s.terresArables, s.surfaceAdmissible);
+    const voieCompatibleHaies = eligibles.some(v => v.id === "pratiques" || v.id === "certification");
+    const bonusHaies =
+        voieCompatibleHaies &&
+        nombreOuZero(s.pourcentageHaiesSAU) >= 6 &&
+        (!taSignificatives || nombreOuZero(s.pourcentageHaiesTerresArables) >= 6) &&
+        env.certificationGestionDurableHaies === true &&
+        env.maecEntretienLigneux !== true;
+
+    const raisons = [
+        `Voie(s) initialement compatible(s) : ${eligibles.map(v => v.id).join(", ")}.`,
+        `Niveau le plus élevé identifié : ${meilleure.niveau}.`
+    ];
+    if (bonusHaies) raisons.push("Les informations saisies sont compatibles avec le bonus haies.");
+
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, raisons, [], [], {
+        niveau: meilleure.niveau,
+        voie: meilleure.id,
+        voiesEligibles: eligibles.map(v => ({ voie: v.id, niveau: v.niveau })),
+        bonusHaies
+    });
+}
+
+/* =========================================================
+   AIDES COUPLÉES VÉGÉTALES
+========================================================= */
+
+function analyserLegumineusesGraines() {
+    const id = "legumineuses_graines";
+    const p = profilExploitation.productionsVegetales.legumineusesGraines;
+    if (!valeurPositive(p.surface)) return nonRetenue(id, "Aucune surface concernée n'est renseignée.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+
+    const manquants = [];
+    if (!p.destination) manquants.push("Destination des légumineuses");
+    if (p.destination === "deshydratation") {
+        if (p.contratDeshydratation === false) return nonRetenue(id, "La destination déshydratation nécessite un contrat avec une entreprise de déshydratation.");
+        if (p.contratDeshydratation === null) manquants.push("Contrat de déshydratation");
+    }
+    if (estRenseigne(p.melangeProteagineuxPourcent) && nombreOuZero(p.melangeProteagineuxPourcent) <= 50) {
+        return nonRetenue(id, "Le mélange renseigné ne dépasse pas 50 % de protéagineux.");
+    }
+    if (manquants.length) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], manquants);
+
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Une surface de production éligible est renseignée."], [], ["Si la parcelle est un mélange céréales/protéagineux, vérifier que la part de protéagineux dépasse 50 % des semences implantées."]);
+}
+
+function analyserLegumineusesFourrageres() {
+    const id = "legumineuses_fourrageres";
+    const p = profilExploitation.productionsVegetales.legumineusesFourrageres;
+    if (!valeurPositive(p.surface)) return nonRetenue(id, "Aucune surface de légumineuses fourragères n'est renseignée.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+
+    const manquants = [];
+    if (!p.zone) manquants.push("Zone plaine/piémont ou montagne");
+    const ugb = nombreOuZero(p.ugb);
+    if (ugb < 5 && p.contratEleveur5UGB === false) return nonRetenue(id, "Le seuil de 5 UGB n'est pas atteint et aucun contrat avec un éleveur détenant au moins 5 UGB n'est renseigné.");
+    if (ugb < 5 && p.contratEleveur5UGB === null) manquants.push("UGB ou contrat direct avec un éleveur détenant au moins 5 UGB");
+    if (estRenseigne(p.melangeLegumineusesPourcent) && nombreOuZero(p.melangeLegumineusesPourcent) < 50) {
+        return nonRetenue(id, "Le mélange comporte moins de 50 % de légumineuses à l'implantation.");
+    }
+    if (p.melangeAvecGraminees === true && p.anneeSemis === false) {
+        return nonRetenue(id, "Un mélange légumineuses/graminées n'est éligible que l'année du semis.");
+    }
+    if (manquants.length) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], manquants);
+
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Surface de légumineuses fourragères renseignée.", "Condition UGB/contrat initialement compatible."], [], [], { zone: p.zone });
+}
+
+function territoireBleDurEligible() {
+    const region = normaliserTexte(profilExploitation.general.region);
+    const dep = normaliserTexte(profilExploitation.general.departement);
+    return region.includes("occitanie") || region.includes("provence-alpes-cote d'azur") || region.includes("paca") || dep.includes("drome") || dep.includes("ardeche");
+}
+
+function analyserBleDur() {
+    const id = "ble_dur";
+    const p = profilExploitation.productionsVegetales.bleDur;
+    if (!valeurPositive(p.surface)) return nonRetenue(id, "Aucune surface de blé dur n'est renseignée.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+
+    if (!profilExploitation.general.region && !profilExploitation.general.departement) {
+        return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], ["Région ou département"]);
+    }
+    if (!territoireBleDurEligible()) return nonRetenue(id, "La localisation renseignée n'appartient pas aux zones indiquées comme éligibles dans le guide.");
+    if (p.contratCollecteur === false) return nonRetenue(id, "Aucun contrat annuel de livraison avec un collecteur n'est renseigné.");
+    if (p.contratCollecteur === null) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], ["Contrat annuel avec un collecteur"]);
+
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Surface de blé dur en zone indiquée comme éligible.", "Contrat collecteur renseigné."]);
+}
+
+function analyserPommeTerreFeculiere() {
+    const id = "pomme_terre_feculiere";
+    const p = profilExploitation.productionsVegetales.pommeTerreFeculiere;
+    if (!valeurPositive(p.surface)) return nonRetenue(id, "Aucune surface de pomme de terre féculière n'est renseignée.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+    if (p.contratTransformation === false) return nonRetenue(id, "Le contrat de culture requis n'est pas renseigné.");
+    if (p.contratTransformation === null) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], ["Contrat de culture / transformation"]);
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Surface et contrat de culture renseignés."]);
+}
+
+function analyserRiz() {
+    const id = "riz";
+    const p = profilExploitation.productionsVegetales.riz;
+    if (!valeurPositive(p.surface)) return nonRetenue(id, "Aucune surface de riz n'est renseignée.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Une surface implantée en riz est renseignée."]);
+}
+
+function analyserHoublon() {
+    const id = "houblon";
+    const p = profilExploitation.productionsVegetales.houblon;
+    if (!valeurPositive(p.surface)) return nonRetenue(id, "Aucune surface de houblon n'est renseignée.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Une surface implantée en houblon est renseignée."]);
+}
+
+function analyserSemencesGraminees() {
+    const id = "semences_graminees";
+    const p = profilExploitation.productionsVegetales.semencesGraminees;
+    if (!valeurPositive(p.surface)) return nonRetenue(id, "Aucune surface de semences de graminées n'est renseignée.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+
+    const manquants = [];
+    if (p.contratCulture === false) return nonRetenue(id, "Aucun contrat de culture n'est renseigné.");
+    if (p.varieteAutorisee === false) return nonRetenue(id, "La variété renseignée n'est pas indiquée comme autorisée.");
+    if (p.usageGazonUniquement === true) return nonRetenue(id, "Les productions destinées uniquement au gazon sont exclues.");
+    if (p.contratCulture === null) manquants.push("Contrat de culture");
+    if (p.varieteAutorisee === null) manquants.push("Variété autorisée");
+    if (p.usageGazonUniquement === null) manquants.push("Destination de la semence");
+    if (manquants.length) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], manquants);
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Surface, contrat et variété initialement compatibles."]);
+}
+
+function analyserChanvre() {
+    const id = "chanvre";
+    const p = profilExploitation.productionsVegetales.chanvre;
+    if (!valeurPositive(p.surface)) return nonRetenue(id, "Aucune surface de chanvre n'est renseignée.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+
+    const manquants = [];
+    if (p.contratTransformationOuSemences === false) return nonRetenue(id, "Aucun contrat de transformation ou de production de semences certifiées n'est renseigné.");
+    if (p.thcConforme === false) return nonRetenue(id, "La conformité réglementaire du chanvre n'est pas remplie.");
+    if (p.contratTransformationOuSemences === null) manquants.push("Contrat transformation / semences");
+    if (p.thcConforme === null) manquants.push("Conformité réglementaire du chanvre");
+    if (manquants.length) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], manquants);
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Surface et conditions réglementaires initialement compatibles."]);
+}
+
+function analyserMaraichage() {
+    const id = "petit_maraichage";
+    const surface = calculerSurfaceMaraichage();
+    if (surface <= 0) return nonRetenue(id, "Aucune surface de légumes frais ou petits fruits rouges n'est renseignée.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+    if (!estRenseigne(profilExploitation.surfaces.sau)) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], ["SAU totale"]);
+    if (surface < 0.5) return nonRetenue(id, "La surface concernée est inférieure à 0,5 ha.");
+    if (nombreOuZero(profilExploitation.surfaces.sau) > 3) return nonRetenue(id, "La SAU renseignée dépasse 3 ha.");
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Au moins 0,5 ha de légumes frais ou petits fruits rouges.", "SAU inférieure ou égale à 3 ha."]);
+}
+
+function analyserFruitsTransformes() {
+    const id = "fruits_transformes";
+    const p = profilExploitation.productionsVegetales.fruitsTransformes;
+    if (sommeSurfacesFruitsTransformes() <= 0) return nonRetenue(id, "Aucune production destinée à la transformation n'est renseignée.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+    if (p.deboucheIndustriel === false) return nonRetenue(id, "Le débouché industriel requis n'est pas renseigné.");
+    if (p.deboucheIndustriel === null) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], ["Adhésion à une OP reconnue ou contrat avec une usine de transformation"]);
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Une production éligible et un débouché industriel sont renseignés."]);
+}
+
+/* =========================================================
+   AIDES COUPLÉES ANIMALES
+========================================================= */
+
+function ugbBovinesRenseignees() {
+    const b = profilExploitation.bovins;
+    if (estRenseigne(b.ugbTotal)) return nombreOuZero(b.ugbTotal);
+    return nombreOuZero(b.ugbNiveauSuperieur) + nombreOuZero(b.ugbNiveauBase);
+}
+
+function analyserBovinsTerritoire(id, territoireAttendu) {
+    if (profilExploitation.general.territoire !== territoireAttendu) {
+        return nonRetenue(id, `Cette variante concerne le territoire « ${territoireAttendu} ».`);
+    }
+    const b = profilExploitation.bovins;
+    if (b.present === false && ugbBovinesRenseignees() <= 0) return nonRetenue(id, "Aucun atelier bovin n'est renseigné.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+
+    const manquants = [];
+    if (ugbBovinesRenseignees() < 5) return nonRetenue(id, "Le seuil de 5 UGB bovines n'est pas atteint.");
+    if (b.animauxDetenus6Mois === false) return nonRetenue(id, "La durée minimale de détention renseignée n'est pas respectée.");
+    if (b.identificationConforme === false) return nonRetenue(id, "Les conditions d'identification ne sont pas renseignées comme conformes.");
+    if (b.animauxDetenus6Mois === null) manquants.push("Durée de détention des bovins");
+    if (b.identificationConforme === null) manquants.push("Identification des bovins");
+    if (!estRenseigne(b.ugbNiveauSuperieur) || !estRenseigne(b.ugbNiveauBase)) manquants.push("Répartition des UGB entre niveau supérieur et niveau de base");
+    if (manquants.length) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], manquants);
+
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Le seuil de 5 UGB est atteint.", "Durée de détention et identification renseignées comme conformes."], [], ["Le classement précis des UGB entre niveaux et les plafonds doivent être vérifiés sur le dossier." ]);
+}
+
+function analyserBovins() {
+    return analyserBovinsTerritoire("bovins_hexagone", "Hexagone");
+}
+
+function analyserBovinsCorse() {
+    return analyserBovinsTerritoire("bovins_corse", "Corse");
+}
+
+function analyserVeauxQualite() {
+    const id = "veaux_qualite";
+    const v = profilExploitation.veauxQualite;
+    if (!estHexagone()) return nonRetenue(id, "Cette aide est traitée ici pour l'Hexagone.");
+    if (v.present === false || !valeurPositive(v.nombreVeauxEligibles)) return nonRetenue(id, "Aucun veau potentiellement éligible n'est renseigné.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+
+    if (!(v.labelRouge === true || v.igpRoseePyreneesCatalanes === true || v.agricultureBiologique === true)) {
+        const toutRenseigne = [v.labelRouge, v.igpRoseePyreneesCatalanes, v.agricultureBiologique].every(x => x !== null);
+        if (toutRenseigne) return nonRetenue(id, "Aucun signe de qualité ou mode biologique éligible n'est renseigné.");
+        return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], ["Label rouge, IGP Rosée des Pyrénées Catalanes ou agriculture biologique"]);
+    }
+    if (v.detention45Jours === false || v.identificationConforme === false) return nonRetenue(id, "Une condition de détention ou d'identification n'est pas respectée.");
+
+    const manquants = [];
+    if (v.detention45Jours === null) manquants.push("Détention d'au moins 45 jours");
+    if (v.identificationConforme === null) manquants.push("Identification des veaux");
+    if (manquants.length) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], manquants);
+
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Veaux potentiellement éligibles et signe de qualité / bio renseignés."]);
+}
+
+function analyserOvins() {
+    const id = "ovins_hexagone";
+    const o = profilExploitation.ovins;
+    if (!estHexagone()) return nonRetenue(id, "La variante Hexagone ne s'applique pas à la Corse.");
+    if (o.present === false || !valeurPositive(o.nombreBrebis)) return nonRetenue(id, "Aucun atelier ovin n'est renseigné.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+    if (nombreOuZero(o.nombreBrebis) < 50) return nonRetenue(id, "Le seuil de 50 brebis n'est pas atteint.");
+    if (o.detention100Jours === false || o.identificationConforme === false) return nonRetenue(id, "Une condition de détention ou d'identification n'est pas respectée.");
+
+    const manquants = [];
+    if (o.detention100Jours === null) manquants.push("Détention pendant 100 jours");
+    if (o.identificationConforme === null) manquants.push("Identification des ovins");
+    if (o.nouveauProducteur !== true) {
+        if (!estRenseigne(o.nombreBrebisPresentes1JanvierNMoins1)) manquants.push("Brebis présentes au 1er janvier N-1");
+        if (!estRenseigne(o.nombreAgneauxVendusNMoins1)) manquants.push("Agneaux vendus en N-1");
+    }
+    if (manquants.length) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], manquants);
+
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Le seuil de 50 brebis est atteint.", "Détention et identification renseignées comme conformes."], [], ["Le ratio de productivité sera appliqué au calcul sauf pour un nouveau producteur."]);
+}
+
+function analyserCaprins() {
+    const id = "caprins_hexagone";
+    const c = profilExploitation.caprins;
+    if (!estHexagone()) return nonRetenue(id, "La variante Hexagone ne s'applique pas à la Corse.");
+    if (c.present === false || !valeurPositive(c.nombreChevres)) return nonRetenue(id, "Aucun atelier caprin n'est renseigné.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+    if (nombreOuZero(c.nombreChevres) < 25) return nonRetenue(id, "Le seuil de 25 chèvres n'est pas atteint.");
+    if (c.detention100Jours === false || c.identificationConforme === false) return nonRetenue(id, "Une condition de détention ou d'identification n'est pas respectée.");
+
+    const manquants = [];
+    if (c.detention100Jours === null) manquants.push("Détention pendant 100 jours");
+    if (c.identificationConforme === null) manquants.push("Identification des caprins");
+    if (manquants.length) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], manquants);
+
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Le seuil de 25 chèvres est atteint.", "Détention et identification renseignées comme conformes."], [], ["Le plafond de 400 chèvres et la transparence GAEC seront appliqués au calcul."]);
+}
+
+function analyserPetitsRuminantsCorse() {
+    const id = "petits_ruminants_corse";
+    if (!estCorse()) return nonRetenue(id, "Cette aide est spécifique à la Corse.");
+    const p = profilExploitation.petitsRuminantsCorse;
+    const total = nombreOuZero(p.nombreBrebis) + nombreOuZero(p.nombreChevres);
+    if (total <= 0) return nonRetenue(id, "Aucun petit ruminant n'est renseigné.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+
+    const seuil = p.sousAOPBrocciu === true ? 90 : 50;
+    if (total < seuil) return nonRetenue(id, `L'effectif total renseigné est inférieur au seuil de ${seuil} animaux associé au niveau demandé.`);
+    if (p.detention100Jours === false || p.identificationConforme === false) return nonRetenue(id, "Une condition de détention ou d'identification n'est pas respectée.");
+
+    const manquants = [];
+    if (p.sousAOPBrocciu === null) manquants.push("Engagement sous AOP Brocciu");
+    if (p.detention100Jours === null) manquants.push("Détention pendant 100 jours");
+    if (p.identificationConforme === null) manquants.push("Identification des animaux");
+    if (manquants.length) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], manquants);
+
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Effectif minimal atteint.", "Détention et identification renseignées comme conformes."], [], ["Le plafond d'effectif est fixé par arrêté et doit être vérifié.", "La valeur 2024 de 34,85 €/chèvre est libellée de façon ambiguë dans le guide ; elle n'est pas utilisée automatiquement comme niveau supérieur."], { niveau: p.sousAOPBrocciu ? "superieur" : "base" });
+}
+
+/* =========================================================
+   ICHN
+========================================================= */
+
+function estZoneMontagneICHN() {
+    return ["montagne", "haute_montagne"].includes(profilExploitation.ichn.typeZone);
+}
+
+function estZoneHorsMontagneICHN() {
+    return ["piemont", "zone_defavorisee_simple"].includes(profilExploitation.ichn.typeZone);
+}
+
+function analyserICHNAnimale() {
+    const id = "ichn_animale";
+    const i = profilExploitation.ichn;
+    if (i.zoneEligible === false || i.aideAnimale === false) return nonRetenue(id, "Aucune surface fourragère en zone ICHN n'est renseignée.");
+    if (i.zoneEligible === null && i.aideAnimale !== true) return nonRetenue(id, "Aucune demande ICHN animale n'est renseignée.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+
+    const manquants = [];
+    if (!i.typeZone) manquants.push("Type de zone ICHN");
+    if (!estRenseigne(i.surfacesFourrageresEligibles)) manquants.push("Surface fourragère en zone défavorisée");
+    if (!estRenseigne(i.ugb)) manquants.push("UGB ICHN");
+    if (!estRenseigne(i.pourcentageSAUZoneDefavorisee)) manquants.push("Part de SAU en zone défavorisée");
+    if (!estRenseigne(i.partRevenuAgricolePourcent)) manquants.push("Part du revenu agricole");
+    if (estZoneHorsMontagneICHN() && i.siegeEnZoneDefavorisee === null) manquants.push("Siège d'exploitation en zone défavorisée");
+    if (manquants.length) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], manquants);
+
+    if (nombreOuZero(i.surfacesFourrageresEligibles) < 3) return nonRetenue(id, "La surface fourragère en zone défavorisée est inférieure à 3 ha.");
+    if (nombreOuZero(i.ugb) < 5) return nonRetenue(id, "Le seuil de 5 UGB n'est pas atteint.");
+    if (estZoneHorsMontagneICHN() && i.siegeEnZoneDefavorisee === false) return nonRetenue(id, "Hors montagne, le siège doit être situé en zone défavorisée.");
+    if (estZoneHorsMontagneICHN() && nombreOuZero(i.pourcentageSAUZoneDefavorisee) < 80) return nonRetenue(id, "Moins de 80 % de la SAU est en zone défavorisée ; le guide indique que les surfaces hors montagne ne sont alors pas indemnisées.");
+
+    const verifications = [];
+    if (estZoneMontagneICHN() && nombreOuZero(i.pourcentageSAUZoneDefavorisee) < 80) verifications.push("En montagne, un paiement fortement réduit peut rester possible lorsque moins de 80 % de la SAU est en zone défavorisée.");
+    if (nombreOuZero(i.partRevenuAgricolePourcent) < 50) verifications.push("La part de revenu agricole est inférieure à 50 % : des plafonnements liés au revenu non agricole doivent être vérifiés.");
+    verifications.push("Le montant variable et les plages de chargement sont fixés localement.");
+
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Au moins 3 ha de surface fourragère en zone défavorisée.", "Au moins 5 UGB renseignées."], [], verifications);
+}
+
+function analyserICHNVegetale() {
+    const id = "ichn_vegetale";
+    const i = profilExploitation.ichn;
+    if (i.zoneEligible === false || i.aideVegetale === false) return nonRetenue(id, "Aucune culture de vente en zone de montagne n'est renseignée.");
+    if (i.zoneEligible === null && i.aideVegetale !== true) return nonRetenue(id, "Aucune demande ICHN végétale n'est renseignée.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+
+    const manquants = [];
+    if (!i.typeZone) manquants.push("Type de zone ICHN");
+    if (!estRenseigne(i.surfacesVegetalesEligibles)) manquants.push("Surface de cultures de vente en montagne");
+    if (!estRenseigne(i.pourcentageSAUZoneDefavorisee)) manquants.push("Part de SAU en zone défavorisée");
+    if (!estRenseigne(i.partRevenuAgricolePourcent)) manquants.push("Part du revenu agricole");
+    if (manquants.length) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], manquants);
+
+    if (!estZoneMontagneICHN()) return nonRetenue(id, "L'ICHN végétale est réservée aux zones de montagne et haute montagne.");
+    if (nombreOuZero(i.surfacesVegetalesEligibles) < 1) return nonRetenue(id, "La surface de cultures de vente est inférieure à 1 ha.");
+
+    const verifications = [];
+    if (nombreOuZero(i.pourcentageSAUZoneDefavorisee) < 80) verifications.push("Le guide prévoit un taux fortement réduit en montagne lorsque moins de 80 % de la SAU est en zone défavorisée.");
+    if (nombreOuZero(i.partRevenuAgricolePourcent) < 50) verifications.push("Des limitations liées au revenu non agricole doivent être vérifiées.");
+
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Zone de montagne ou haute montagne renseignée.", "Au moins 1 ha de cultures de vente renseigné."], [], verifications);
+}
+
+/* =========================================================
+   CAB / MAEC
+========================================================= */
+
+function surfaceTotaleCAB() {
+    const c = profilExploitation.conversionBio;
+    return [
+        c.landesEstivesParcours,
+        c.prairiesAvecElevage,
+        c.culturesAnnuellesLegumineusesJacheresSemences,
+        c.viticulture,
+        c.ppamListees,
+        c.legumesPleinChampBetterave,
+        c.maraichageArboricultureAutresPpamSemences
+    ].reduce((total, valeur) => total + nombreOuZero(valeur), 0);
+}
+
+function analyserCAB() {
+    const id = "cab";
+    const c = profilExploitation.conversionBio;
+    if (c.enConversion === false) return nonRetenue(id, "Aucune conversion à l'agriculture biologique n'est renseignée.");
+    if (c.enConversion === null && surfaceTotaleCAB() <= 0) return nonRetenue(id, "Aucune surface en conversion n'est renseignée.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+
+    const manquants = [];
+    if (c.enConversion === null) manquants.push("Engagement en conversion biologique");
+    if (c.premiereOuDeuxiemeAnnee === null) manquants.push("Surface en première ou deuxième année de conversion");
+    if (c.premiereOuDeuxiemeAnnee === false) return nonRetenue(id, "Le guide indique que la CAB est accessible aux surfaces en première ou deuxième année de conversion.");
+    if (surfaceTotaleCAB() <= 0) manquants.push("Surfaces par catégorie de couvert");
+    if (manquants.length) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], manquants);
+
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Des surfaces en première ou deuxième année de conversion sont renseignées."], [], ["Un plafond régional peut être fixé pour la campagne d'engagement.", "L'engagement CAB est prévu pour 5 ans."]);
+}
+
+function analyserMAEC() {
+    const id = "maec_surfaciques";
+    const m = profilExploitation.maec;
+    if (m.souhaiteExaminer === false || m.souhaiteExaminer === null) return nonRetenue(id, "Aucune recherche de MAEC n'est demandée dans le profil.");
+    const actif = verifierActifPourAide(id); if (actif) return actif;
+    if (m.offreLocaleConnue === null) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], ["Existence d'une MAEC ouverte localement"]);
+    if (m.offreLocaleConnue === false) return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Une recherche de MAEC est souhaitée."], [], ["Les MAEC disponibles dépendent des offres locales ; consulter la DDT(M) ou la chambre d'agriculture."]);
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Une offre MAEC locale est renseignée."], [], ["Le montant et les paramètres du cahier des charges doivent être vérifiés localement."], { type: m.type });
+}
+
+/* =========================================================
+   RISQUES / PRÉDATION / SECTORIEL / RÉGIONAL
+========================================================= */
+
+function analyserAssuranceMRC() {
+    const id = "assurance_mrc";
+    const a = profilExploitation.assurance;
+    if (a.souscritMRC === false) return nonRetenue(id, "Aucun contrat d'assurance MRC n'est renseigné.");
+    if (a.souscritMRC === null) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], ["Souscription d'un contrat MRC"]);
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Un contrat MRC est renseigné."], [], ["Le guide indique un taux de prise en charge de 70 % en 2025 ; le taux 2026 n'est pas fourni dans ce document."]);
+}
+
+function analyserPredation() {
+    const id = "predation";
+    const atelier = valeurPositive(profilExploitation.ovins.nombreBrebis) || valeurPositive(profilExploitation.caprins.nombreChevres) || valeurPositive(profilExploitation.petitsRuminantsCorse.nombreBrebis) || valeurPositive(profilExploitation.petitsRuminantsCorse.nombreChevres);
+    if (!atelier) return nonRetenue(id, "Aucun troupeau ovin ou caprin n'est renseigné.");
+    if (profilExploitation.predation.zoneRisque === false) return nonRetenue(id, "Aucune zone de risque de prédation n'est renseignée.");
+    if (profilExploitation.predation.zoneRisque === null) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], ["Classement de la commune dans un cercle de prédation"]);
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Un troupeau ovin/caprin et une zone de risque de prédation sont renseignés."], [], ["Le niveau d'aide dépend du cercle, des dépenses, de la durée de pâturage, de l'effectif et du mode de conduite."]);
+}
+
+function analyserProgrammesSectoriels() {
+    const id = "programmes_sectoriels";
+    const p = profilExploitation.programmesSectoriels;
+    if (p.concerne === false || p.concerne === null) return nonRetenue(id, "Aucun programme sectoriel n'est demandé dans le profil.");
+    if (!p.secteur) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], ["Secteur concerné"]);
+
+    const secteursOP = ["fruits_legumes", "huile_olive", "proteines", "horticulture", "veau_label", "lapin", "riz"];
+    if (secteursOP.includes(p.secteur)) {
+        if (p.membreOPAOP === false) return nonRetenue(id, "Pour ce programme opérationnel, les bénéficiaires sont les OP/AOP ; aucune appartenance à une OP/AOP n'est renseignée.");
+        if (p.membreOPAOP === null) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], ["Appartenance à une OP/AOP"]);
+    }
+
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Le secteur renseigné fait partie des programmes sectoriels décrits dans le guide."], [], ["Les interventions et taux d'aide dépendent du programme et du bénéficiaire."], { secteur: p.secteur });
+}
+
+function analyserAidesRegionales() {
+    const id = "aides_regionales";
+    const r = profilExploitation.regional;
+    if (r.souhaiteExaminer === false || r.souhaiteExaminer === null) return nonRetenue(id, "Aucune aide régionale n'est demandée dans le profil.");
+    if (!r.type) return creerResultatAide(id, STATUT_AIDE.INFORMATIONS_MANQUANTES, [], ["Type d'aide régionale recherchée"]);
+    return creerResultatAide(id, STATUT_AIDE.A_EXAMINER, ["Le type d'intervention renseigné relève des aides régionales mentionnées dans le guide."], [], ["Les conditions et montants sont définis par la Région compétente ; le guide national ne fournit pas de formule uniforme."], { type: r.type });
+}
+
+/* =========================================================
+   ANALYSE GLOBALE
+========================================================= */
+
+function analyserToutesLesAides() {
+    return [
+        analyserAideBase(),
+        analyserEcoregime(),
+        analyserAideRedistributive(),
+        analyserACJA(),
+        analyserLegumineusesGraines(),
+        analyserLegumineusesFourrageres(),
+        analyserBleDur(),
+        analyserPommeTerreFeculiere(),
+        analyserRiz(),
+        analyserHoublon(),
+        analyserSemencesGraminees(),
+        analyserChanvre(),
+        analyserMaraichage(),
+        analyserFruitsTransformes(),
+        analyserBovins(),
+        analyserVeauxQualite(),
+        analyserOvins(),
+        analyserCaprins(),
+        analyserBovinsCorse(),
+        analyserPetitsRuminantsCorse(),
+        analyserICHNAnimale(),
+        analyserICHNVegetale(),
+        analyserCAB(),
+        analyserMAEC(),
+        analyserAssuranceMRC(),
+        analyserPredation(),
+        analyserProgrammesSectoriels(),
+        analyserAidesRegionales()
+    ];
+}
+
+function aidesAExaminer() {
+    return analyserToutesLesAides().filter(r => r.statut === STATUT_AIDE.A_EXAMINER);
+}
+
+function aidesInformationsManquantes() {
+    return analyserToutesLesAides().filter(r => r.statut === STATUT_AIDE.INFORMATIONS_MANQUANTES);
+}
+
+
+==========================================================================================
+FICHIER : modules/calcul.js
+==========================================================================================
+
+/* =========================================================
+   MOTEUR DE CALCUL
+========================================================= */
+
+const TYPE_CALCUL = {
+    CAMPAGNE_2026: "campagne_2026",
+    PROFIL_EXPLOITATION: "profil_exploitation",
+    REFERENCE_2024: "reference_2024",
+    REFERENCE_2025: "reference_2025",
+    PARTIEL: "partiel",
+    NON_CALCULABLE: "non_calculable"
+};
+
+function arrondirMontant(montant) {
+    if (!Number.isFinite(Number(montant))) return null;
+    return Math.round(Number(montant) * 100) / 100;
+}
+
+function formaterMontant(montant) {
+    if (montant === null || montant === undefined || !Number.isFinite(Number(montant))) return "—";
+    return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(Number(montant));
+}
+
+function creerCalcul({
+    id,
+    nom = null,
+    montant = null,
+    type = TYPE_CALCUL.NON_CALCULABLE,
+    anneeReference = null,
+    formule = null,
+    donnees = {},
+    avertissements = [],
+    details = {}
+}) {
+    const aide = obtenirAide(id);
+    const valeur = montant === null ? null : arrondirMontant(montant);
+    return {
+        id,
+        nom: nom || (aide ? aide.nom : id),
+        montant: valeur,
+        montantFormate: formaterMontant(valeur),
+        type,
+        anneeReference,
+        formule,
+        donnees,
+        avertissements,
+        details
+    };
+}
+
+function choisirTarif(montant2026, reference, anneeReference = 2024) {
+    if (montant2026 !== null && montant2026 !== undefined) {
+        return { tarif: Number(montant2026), type: TYPE_CALCUL.CAMPAGNE_2026, anneeReference: 2026 };
+    }
+    if (reference !== null && reference !== undefined) {
+        return {
+            tarif: Number(reference),
+            type: anneeReference === 2025 ? TYPE_CALCUL.REFERENCE_2025 : TYPE_CALCUL.REFERENCE_2024,
+            anneeReference
+        };
+    }
+    return { tarif: null, type: TYPE_CALCUL.NON_CALCULABLE, anneeReference: null };
+}
+
+function orientationValide(orientation) {
+    return orientation && orientation.statut === STATUT_AIDE.A_EXAMINER;
+}
+
+function calculNonEligible(orientation) {
+    return creerCalcul({
+        id: orientation.id,
+        nom: orientation.nom,
+        type: TYPE_CALCUL.NON_CALCULABLE,
+        avertissements: orientation.informationsManquantes.length
+            ? orientation.informationsManquantes
+            : orientation.verifications
+    });
+}
+
+/* =========================================================
+   PAIEMENTS DÉCOUPLÉS
+========================================================= */
+
+function calculerAideBase() {
+    const orientation = analyserAideBase();
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+
+    const surface = nombreOuZero(profilExploitation.surfaces.surfaceAdmissible);
+    const dpbActifs = nombreOuZero(profilExploitation.dpb.nombreDPBActives);
+    const nombrePrime = Math.min(surface, dpbActifs);
+    const totalDeclare = profilExploitation.dpb.valeurTotaleDPB;
+    const moyenne = profilExploitation.dpb.valeurMoyenneDPB;
+
+    if (estRenseigne(totalDeclare) && Number(totalDeclare) >= 0) {
+        return creerCalcul({
+            id: "aide_base",
+            montant: Number(totalDeclare),
+            type: TYPE_CALCUL.PROFIL_EXPLOITATION,
+            formule: "Valeur totale des DPB renseignée par l'utilisateur",
+            donnees: { nombreDPBActives: dpbActifs, surfaceAdmissible: surface }
+        });
+    }
+
+    if (estRenseigne(moyenne) && Number(moyenne) >= 0) {
+        return creerCalcul({
+            id: "aide_base",
+            montant: nombrePrime * Number(moyenne),
+            type: TYPE_CALCUL.PROFIL_EXPLOITATION,
+            formule: "min(DPB activés, surface admissible) × valeur moyenne des DPB renseignée",
+            donnees: { nombrePrime, valeurMoyenneDPB: Number(moyenne) }
+        });
+    }
+
+    return creerCalcul({
+        id: "aide_base",
+        type: TYPE_CALCUL.NON_CALCULABLE,
+        avertissements: ["Renseignez la valeur moyenne ou la valeur totale réelle des DPB. La moyenne nationale de référence n'est pas utilisée comme substitut à la valeur de l'exploitation."]
+    });
+}
+
+function calculerAideRedistributive() {
+    const orientation = analyserAideRedistributive();
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+
+    const p = PARAMETRES_PAC_2026.aideRedistributive;
+    const t = choisirTarif(p.montant2026, p.reference2024, 2024);
+    const surface = Math.min(nombreOuZero(profilExploitation.surfaces.surfaceAdmissible), p.hectaresMaximum);
+    if (t.tarif === null) return creerCalcul({ id: "aide_redistributive", avertissements: ["Montant unitaire non disponible."] });
+
+    return creerCalcul({
+        id: "aide_redistributive",
+        montant: surface * t.tarif,
+        type: t.type,
+        anneeReference: t.anneeReference,
+        formule: `min(surface admissible, ${p.hectaresMaximum} ha) × tarif`,
+        donnees: { surface, tarif: t.tarif },
+        avertissements: profilExploitation.general.gaecTotal ? ["Calcul présenté hors application détaillée de la transparence GAEC."] : []
+    });
+}
+
+function calculerACJA() {
+    const orientation = analyserACJA();
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+
+    const p = PARAMETRES_PAC_2026.ACJA;
+    const t = choisirTarif(p.montant2026, p.reference2024, 2024);
+    if (t.tarif === null) return creerCalcul({ id: "acja", avertissements: ["Forfait annuel non disponible."] });
+
+    let multiplicateur = 1;
+    if (profilExploitation.general.gaecTotal === true && nombreOuZero(profilExploitation.installation.nombreAssociesJAEligibles) > 0) {
+        multiplicateur = nombreOuZero(profilExploitation.installation.nombreAssociesJAEligibles);
+    }
+
+    return creerCalcul({
+        id: "acja",
+        montant: t.tarif * multiplicateur,
+        type: profilExploitation.general.gaecTotal && multiplicateur > 1 ? TYPE_CALCUL.PARTIEL : t.type,
+        anneeReference: t.anneeReference,
+        formule: "Forfait annuel × nombre de bénéficiaires JA pris en compte",
+        donnees: { forfait: t.tarif, multiplicateur },
+        avertissements: profilExploitation.general.gaecTotal ? ["La transparence GAEC et le nombre d'associés JA éligibles doivent être confirmés administrativement."] : []
+    });
+}
+
+function calculerEcoregime() {
+    const orientation = analyserEcoregime();
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+
+    const p = PARAMETRES_PAC_2026.ecoregime;
+    const niveau = orientation.details.niveau;
+    let t;
+    if (niveau === "bio") t = choisirTarif(p.niveauBio2026, p.reference2024.niveauBio, 2024);
+    else if (niveau === "superieur") t = choisirTarif(p.niveauSuperieur2026, p.reference2024.niveauSuperieur, 2024);
+    else t = choisirTarif(p.niveauBase2026, p.reference2024.niveauBase, 2024);
+
+    const surface = nombreOuZero(profilExploitation.surfaces.surfaceAdmissible);
+    const avertissements = [];
+
+    if (niveau === "base" && t.tarif === null) {
+        avertissements.push("Le guide comporte deux montants 2024 différents pour le niveau de base (48,23 et 48,35 €/ha). Aucun n'est choisi automatiquement.");
+        return creerCalcul({ id: "ecoregime", type: TYPE_CALCUL.NON_CALCULABLE, avertissements, details: orientation.details });
+    }
+
+    let montant = surface * t.tarif;
+    let type = t.type;
+    let anneeReference = t.anneeReference;
+
+    if (orientation.details.bonusHaies) {
+        const bonus = choisirTarif(p.bonusHaies2026, p.reference2024.bonusHaies, 2024);
+        if (bonus.tarif !== null) {
+            montant += surface * bonus.tarif;
+            if (bonus.type !== type) type = TYPE_CALCUL.PARTIEL;
+            avertissements.push(`Bonus haies ajouté avec la référence ${bonus.anneeReference}.`);
+        } else {
+            avertissements.push("Bonus haies identifié mais tarif annuel non disponible.");
+        }
+    }
+
+    return creerCalcul({
+        id: "ecoregime",
+        montant,
+        type,
+        anneeReference,
+        formule: "Surface admissible × tarif du niveau identifié, avec éventuel bonus haies",
+        donnees: { surface, niveau, voie: orientation.details.voie, tarif: t.tarif },
+        avertissements,
+        details: orientation.details
+    });
+}
+
+/* =========================================================
+   AIDES COUPLÉES VÉGÉTALES
+========================================================= */
+
+function calculerAideSurface(id, orientation, surface, parametre) {
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+    const t = choisirTarif(parametre.montant2026, parametre.reference2024, 2024);
+    if (t.tarif === null) return creerCalcul({ id, avertissements: ["Tarif annuel non disponible."] });
+    return creerCalcul({
+        id,
+        montant: nombreOuZero(surface) * t.tarif,
+        type: t.type,
+        anneeReference: t.anneeReference,
+        formule: "Surface éligible × tarif unitaire",
+        donnees: { surface: nombreOuZero(surface), tarif: t.tarif }
+    });
+}
+
+function calculerLegumineusesGraines() {
+    return calculerAideSurface(
+        "legumineuses_graines",
+        analyserLegumineusesGraines(),
+        profilExploitation.productionsVegetales.legumineusesGraines.surface,
+        PARAMETRES_PAC_2026.aidesCouplees.vegetales.legumineusesGraines
+    );
+}
+
+function calculerLegumineusesFourrageres() {
+    const orientation = analyserLegumineusesFourrageres();
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+    const zone = profilExploitation.productionsVegetales.legumineusesFourrageres.zone;
+    const param = zone === "montagne"
+        ? PARAMETRES_PAC_2026.aidesCouplees.vegetales.legumineusesFourrageres.montagne
+        : PARAMETRES_PAC_2026.aidesCouplees.vegetales.legumineusesFourrageres.plainePiemont;
+    return calculerAideSurface("legumineuses_fourrageres", orientation, profilExploitation.productionsVegetales.legumineusesFourrageres.surface, param);
+}
+
+function calculerBleDur() {
+    return calculerAideSurface("ble_dur", analyserBleDur(), profilExploitation.productionsVegetales.bleDur.surface, PARAMETRES_PAC_2026.aidesCouplees.vegetales.bleDur);
+}
+
+function calculerPommeTerreFeculiere() {
+    return calculerAideSurface("pomme_terre_feculiere", analyserPommeTerreFeculiere(), profilExploitation.productionsVegetales.pommeTerreFeculiere.surface, PARAMETRES_PAC_2026.aidesCouplees.vegetales.pommeTerreFeculiere);
+}
+
+function calculerRiz() {
+    return calculerAideSurface("riz", analyserRiz(), profilExploitation.productionsVegetales.riz.surface, PARAMETRES_PAC_2026.aidesCouplees.vegetales.riz);
+}
+
+function calculerHoublon() {
+    return calculerAideSurface("houblon", analyserHoublon(), profilExploitation.productionsVegetales.houblon.surface, PARAMETRES_PAC_2026.aidesCouplees.vegetales.houblon);
+}
+
+function calculerSemencesGraminees() {
+    return calculerAideSurface("semences_graminees", analyserSemencesGraminees(), profilExploitation.productionsVegetales.semencesGraminees.surface, PARAMETRES_PAC_2026.aidesCouplees.vegetales.semencesGraminees);
+}
+
+function calculerChanvre() {
+    return calculerAideSurface("chanvre", analyserChanvre(), profilExploitation.productionsVegetales.chanvre.surface, PARAMETRES_PAC_2026.aidesCouplees.vegetales.chanvre);
+}
+
+function calculerMaraichage() {
+    return calculerAideSurface("petit_maraichage", analyserMaraichage(), calculerSurfaceMaraichage(), PARAMETRES_PAC_2026.aidesCouplees.vegetales.maraichage);
+}
+
+function calculerFruitsTransformes() {
+    const orientation = analyserFruitsTransformes();
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+
+    const p = profilExploitation.productionsVegetales.fruitsTransformes;
+    const tarifs = PARAMETRES_PAC_2026.aidesCouplees.vegetales.fruitsTransformes;
+    const lignes = [
+        ["pruneEnte", p.pruneEnte],
+        ["ceriseBigarreau", p.ceriseBigarreau],
+        ["poireWilliams", p.poireWilliams],
+        ["pechePavie", p.pechePavie],
+        ["tomateIndustrie", p.tomateIndustrie]
+    ];
+
+    let montant = 0;
+    const details = {};
+    let type = TYPE_CALCUL.REFERENCE_2024;
+    lignes.forEach(([cle, surface]) => {
+        const t = choisirTarif(tarifs[cle].montant2026, tarifs[cle].reference2024, 2024);
+        const sousTotal = nombreOuZero(surface) * nombreOuZero(t.tarif);
+        montant += sousTotal;
+        details[cle] = { surface: nombreOuZero(surface), tarif: t.tarif, sousTotal: arrondirMontant(sousTotal) };
+        if (t.type === TYPE_CALCUL.CAMPAGNE_2026) type = TYPE_CALCUL.PARTIEL;
+    });
+
+    return creerCalcul({ id: "fruits_transformes", montant, type, anneeReference: type === TYPE_CALCUL.REFERENCE_2024 ? 2024 : null, formule: "Somme des surfaces contractualisées × tarif de chaque production", details });
+}
+
+/* =========================================================
+   AIDES COUPLÉES ANIMALES
+========================================================= */
+
+function calculerBovinsGenerique(id, orientation, param) {
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+    const b = profilExploitation.bovins;
+    const surfaceFourragere = nombreOuZero(profilExploitation.surfaces.surfaceFourragere);
+    const plafondSurface = Math.max(40, 1.4 * surfaceFourragere);
+    const plafondGlobal = Math.min(120, plafondSurface);
+    const sup = Math.min(nombreOuZero(b.ugbNiveauSuperieur), plafondGlobal);
+    const reste = Math.max(0, plafondGlobal - sup);
+    const base = Math.min(nombreOuZero(b.ugbNiveauBase), 40, reste);
+    const tSup = choisirTarif(param.superieur.montant2026, param.superieur.reference2024, 2024);
+    const tBase = choisirTarif(param.base.montant2026, param.base.reference2024, 2024);
+
+    const montant = sup * nombreOuZero(tSup.tarif) + base * nombreOuZero(tBase.tarif);
+    return creerCalcul({
+        id,
+        montant,
+        type: (tSup.type === tBase.type) ? tSup.type : TYPE_CALCUL.PARTIEL,
+        anneeReference: tSup.anneeReference === tBase.anneeReference ? tSup.anneeReference : null,
+        formule: "UGB niveau supérieur × tarif supérieur + UGB niveau de base × tarif de base, après plafonds simplifiés",
+        donnees: { ugbSuperieurRetenues: sup, ugbBaseRetenues: base, plafondGlobal, surfaceFourragere },
+        avertissements: ["Calcul indicatif : le classement précis des animaux et les plafonds doivent être vérifiés administrativement."]
+    });
+}
+
+function calculerBovins() {
+    return calculerBovinsGenerique("bovins_hexagone", analyserBovins(), PARAMETRES_PAC_2026.aidesCouplees.animales.bovinsHexagone);
+}
+
+function calculerBovinsCorse() {
+    return calculerBovinsGenerique("bovins_corse", analyserBovinsCorse(), PARAMETRES_PAC_2026.aidesCouplees.animales.bovinsCorse);
+}
+
+function calculerVeauxQualite() {
+    const orientation = analyserVeauxQualite();
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+    const p = PARAMETRES_PAC_2026.aidesCouplees.animales.veauxQualite;
+    const t = choisirTarif(p.montant2026, p.reference2024, 2024);
+    return creerCalcul({
+        id: "veaux_qualite",
+        montant: nombreOuZero(profilExploitation.veauxQualite.nombreVeauxEligibles) * t.tarif,
+        type: t.type,
+        anneeReference: t.anneeReference,
+        formule: "Nombre de veaux éligibles × tarif par veau"
+    });
+}
+
+function calculerOvins() {
+    const orientation = analyserOvins();
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+    const o = profilExploitation.ovins;
+    const p = PARAMETRES_PAC_2026.aidesCouplees.animales.ovinsHexagone;
+    const baseTarif = choisirTarif(p.base.montant2026, p.base.reference2024, 2024);
+    const majTarif = choisirTarif(p.majoration500Premieres.montant2026, p.majoration500Premieres.reference2024, 2024);
+    const nouvTarif = choisirTarif(p.nouveauProducteur.montant2026, p.nouveauProducteur.reference2024, 2024);
+
+    const demandees = nombreOuZero(o.nombreBrebis);
+    let primees = demandees;
+    if (o.nouveauProducteur !== true) {
+        const presentesN1 = nombreOuZero(o.nombreBrebisPresentes1JanvierNMoins1);
+        const agneaux = nombreOuZero(o.nombreAgneauxVendusNMoins1);
+        const ratio = presentesN1 > 0 ? agneaux / presentesN1 : 0;
+        if (ratio < 0.5 && presentesN1 > 0) primees = Math.min(demandees, agneaux / 0.5);
+    }
+
+    const majorables = Math.min(primees, 500);
+    let montant = primees * baseTarif.tarif + majorables * majTarif.tarif;
+    if (o.nouveauProducteur === true) montant += primees * nouvTarif.tarif;
+
+    return creerCalcul({
+        id: "ovins_hexagone",
+        montant,
+        type: TYPE_CALCUL.REFERENCE_2024,
+        anneeReference: 2024,
+        formule: "Brebis primables × base + majoration des 500 premières + éventuel complément nouveau producteur",
+        donnees: { brebisDemandees: demandees, brebisPrimees: arrondirMontant(primees), brebisMajorees: arrondirMontant(majorables) },
+        avertissements: ["Le guide ne précise pas ici les règles d'arrondi du nombre de brebis après réduction de productivité ; le résultat est indicatif.", ...(profilExploitation.general.gaecTotal ? ["Transparence GAEC à vérifier pour la majoration des 500 premières brebis."] : [])]
+    });
+}
+
+function calculerCaprins() {
+    const orientation = analyserCaprins();
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+    const p = PARAMETRES_PAC_2026.aidesCouplees.animales.caprinsHexagone;
+    const t = choisirTarif(p.montant2026, p.reference2024, 2024);
+    const nombreRetenu = Math.min(nombreOuZero(profilExploitation.caprins.nombreChevres), 400);
+    return creerCalcul({
+        id: "caprins_hexagone",
+        montant: nombreRetenu * t.tarif,
+        type: profilExploitation.general.gaecTotal ? TYPE_CALCUL.PARTIEL : t.type,
+        anneeReference: t.anneeReference,
+        formule: "min(chèvres éligibles, 400) × tarif",
+        donnees: { chevresRetenues: nombreRetenu, tarif: t.tarif },
+        avertissements: profilExploitation.general.gaecTotal ? ["La transparence GAEC peut modifier le plafond de 400 chèvres."] : []
+    });
+}
+
+function calculerPetitsRuminantsCorse() {
+    const orientation = analyserPetitsRuminantsCorse();
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+    const p = profilExploitation.petitsRuminantsCorse;
+    const tarifs = PARAMETRES_PAC_2026.aidesCouplees.animales.petitsRuminantsCorse;
+    const superieur = p.sousAOPBrocciu === true;
+
+    const tarifBrebis = superieur ? tarifs.brebisSuperieur.reference2024 : tarifs.brebisBase.reference2024;
+    const brebisMontant = nombreOuZero(p.nombreBrebis) * tarifBrebis;
+
+    if (superieur && nombreOuZero(p.nombreChevres) > 0) {
+        return creerCalcul({
+            id: "petits_ruminants_corse",
+            type: TYPE_CALCUL.PARTIEL,
+            montant: brebisMontant,
+            anneeReference: 2024,
+            formule: "Part brebis calculée ; part chèvres niveau supérieur non utilisée automatiquement",
+            avertissements: ["Le guide indique 34,85 €/chèvre mais l'intitule à nouveau « montant de base ». Cette valeur ambiguë n'est pas utilisée comme niveau supérieur automatique."]
+        });
+    }
+
+    const tarifChevre = tarifs.chevreBase.reference2024;
+    return creerCalcul({
+        id: "petits_ruminants_corse",
+        montant: brebisMontant + nombreOuZero(p.nombreChevres) * tarifChevre,
+        type: TYPE_CALCUL.REFERENCE_2024,
+        anneeReference: 2024,
+        formule: "Brebis × tarif + chèvres × tarif",
+        avertissements: ["Le plafond d'effectif fixé par arrêté n'est pas appliqué faute de valeur dans le guide national."]
+    });
+}
+
+/* =========================================================
+   ICHN
+========================================================= */
+
+function calculerICHNAnimale() {
+    const orientation = analyserICHNAnimale();
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+    const i = profilExploitation.ichn;
+    const p = PARAMETRES_PAC_2026.ICHN.animale;
+    const surface = Math.min(nombreOuZero(i.surfacesFourrageresEligibles), p.surfaceMaximum);
+    const partFixe = surface * p.montantBaseParHa;
+
+    if (!estRenseigne(i.montantVariableSousZone) || !estRenseigne(i.coefficientModulationChargement)) {
+        return creerCalcul({
+            id: "ichn_animale",
+            type: TYPE_CALCUL.NON_CALCULABLE,
+            formule: "Part fixe + part variable locale, modulées selon le chargement",
+            donnees: { surfaceRetenue: surface, partFixeTheorique: arrondirMontant(partFixe) },
+            avertissements: [
+                `Part fixe théorique avant modulation : ${formaterMontant(partFixe)}.`,
+                "Le montant variable de sous-zone et le coefficient de chargement sont fixés localement ; le montant final n'est donc pas calculé."
+            ]
+        });
+    }
+
+    const tranche1 = Math.min(surface, 25);
+    const tranche2 = Math.max(0, Math.min(surface, 50) - 25);
+    const variable = tranche1 * Number(i.montantVariableSousZone) + tranche2 * Number(i.montantVariableSousZone) * p.coefficientDeuxiemeTranche;
+    const montant = (partFixe + variable) * Number(i.coefficientModulationChargement);
+
+    return creerCalcul({
+        id: "ichn_animale",
+        montant,
+        type: TYPE_CALCUL.PARTIEL,
+        formule: "(part fixe + part variable locale) × coefficient de modulation",
+        donnees: { surface, partFixe, partVariable: variable, coefficient: Number(i.coefficientModulationChargement) },
+        avertissements: ["Calcul à confirmer avec l'arrêté préfectoral applicable et les règles de revenu / chargement."]
+    });
+}
+
+function calculerICHNVegetale() {
+    const orientation = analyserICHNVegetale();
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+    const i = profilExploitation.ichn;
+    const p = PARAMETRES_PAC_2026.ICHN.vegetale;
+    if (i.zoneSeche === null) return creerCalcul({ id: "ichn_vegetale", avertissements: ["Précisez si les surfaces sont classées en zone sèche."] });
+
+    const surface = Math.min(nombreOuZero(i.surfacesVegetalesEligibles), p.surfaceMaximum);
+    const tarif = i.zoneSeche ? p.montantZoneSecheParHa : p.montantAutreZoneParHa;
+    const t1 = Math.min(surface, p.premiereTranche);
+    const t2 = Math.max(0, surface - p.premiereTranche);
+    const montantAvantReduction = t1 * tarif + t2 * tarif * p.coefficientDeuxiemeTranche;
+
+    if (nombreOuZero(i.pourcentageSAUZoneDefavorisee) < 80 || nombreOuZero(i.partRevenuAgricolePourcent) < 50) {
+        return creerCalcul({
+            id: "ichn_vegetale",
+            type: TYPE_CALCUL.NON_CALCULABLE,
+            donnees: { surface, tarif, montantAvantReduction: arrondirMontant(montantAvantReduction) },
+            avertissements: [`Montant avant réduction éventuelle : ${formaterMontant(montantAvantReduction)}.`, "Le guide signale une réduction/plafonnement mais ne fournit pas ici le coefficient applicable à votre situation."]
+        });
+    }
+
+    return creerCalcul({
+        id: "ichn_vegetale",
+        montant: montantAvantReduction,
+        type: profilExploitation.general.gaecTotal ? TYPE_CALCUL.PARTIEL : TYPE_CALCUL.CAMPAGNE_2026,
+        anneeReference: 2026,
+        formule: "25 premiers ha au tarif plein + hectares 25 à 50 à 2/3 du tarif",
+        donnees: { surface, tarif, zoneSeche: i.zoneSeche },
+        avertissements: profilExploitation.general.gaecTotal ? ["La transparence GAEC doit être appliquée au plafond de surface."] : []
+    });
+}
+
+/* =========================================================
+   CAB / MAEC / AUTRES
+========================================================= */
+
+function calculerCAB() {
+    const orientation = analyserCAB();
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+    const c = profilExploitation.conversionBio;
+    const p = PARAMETRES_PAC_2026.CAB;
+    const lignes = [
+        ["landesEstivesParcours", c.landesEstivesParcours, p.landesEstivesParcours],
+        ["prairiesAvecElevage", c.prairiesAvecElevage, p.prairiesAvecElevage],
+        ["culturesAnnuellesLegumineusesJacheresSemences", c.culturesAnnuellesLegumineusesJacheresSemences, p.culturesAnnuellesLegumineusesJacheresSemences],
+        ["viticulture", c.viticulture, p.viticulture],
+        ["ppamListees", c.ppamListees, p.ppamListees],
+        ["legumesPleinChampBetterave", c.legumesPleinChampBetterave, p.legumesPleinChampBetterave],
+        ["maraichageArboricultureAutresPpamSemences", c.maraichageArboricultureAutresPpamSemences, p.maraichageArboricultureAutresPpamSemences]
+    ];
+    let montant = 0;
+    const details = {};
+    lignes.forEach(([cle, surface, tarif]) => {
+        const sousTotal = nombreOuZero(surface) * tarif;
+        montant += sousTotal;
+        details[cle] = { surface: nombreOuZero(surface), tarif, sousTotal: arrondirMontant(sousTotal) };
+    });
+
+    return creerCalcul({
+        id: "cab",
+        montant,
+        type: TYPE_CALCUL.PARTIEL,
+        anneeReference: 2026,
+        formule: "Somme des surfaces en conversion × montant national par catégorie de couvert",
+        details,
+        avertissements: ["Un plafond maximal d'aide par exploitation peut être fixé régionalement.", "Les jachères ne bénéficient que d'un seul paiement sur les 5 ans d'engagement ; les semences visées sont soumises à des conditions de contrat/convention."]
+    });
+}
+
+function calculerMAEC() {
+    const orientation = analyserMAEC();
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+    return creerCalcul({ id: "maec_surfaciques", type: TYPE_CALCUL.NON_CALCULABLE, avertissements: ["Les cahiers des charges et paramètres sont fixés localement ; aucun montant national unique n'est calculé."] });
+}
+
+function calculerAssuranceMRC() {
+    const orientation = analyserAssuranceMRC();
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+    const prime = profilExploitation.assurance.primeAnnuelle;
+    if (!estRenseigne(prime)) return creerCalcul({ id: "assurance_mrc", type: TYPE_CALCUL.NON_CALCULABLE, avertissements: ["Renseignez la prime annuelle pour obtenir une référence 2025.", "Le taux 2026 n'est pas fourni dans le guide."] });
+    const taux = PARAMETRES_PAC_2026.assuranceMRC.reference2025;
+    return creerCalcul({
+        id: "assurance_mrc",
+        montant: Number(prime) * taux,
+        type: TYPE_CALCUL.REFERENCE_2025,
+        anneeReference: 2025,
+        formule: "Prime/cotisation × taux de prise en charge de référence 2025",
+        donnees: { prime: Number(prime), taux },
+        avertissements: ["Référence 2025 uniquement : le guide ne fournit pas le taux 2026."]
+    });
+}
+
+function calculerSansMontant(id, orientation, message) {
+    if (!orientationValide(orientation)) return calculNonEligible(orientation);
+    return creerCalcul({ id, type: TYPE_CALCUL.NON_CALCULABLE, avertissements: [message] });
+}
+
+function calculerPredation() {
+    return calculerSansMontant("predation", analyserPredation(), "Le montant dépend du cercle de prédation, du type de dépense, de la durée de pâturage, de l'effectif et du mode de conduite.");
+}
+
+function calculerProgrammesSectoriels() {
+    return calculerSansMontant("programmes_sectoriels", analyserProgrammesSectoriels(), "Les aides sectorielles sont calculées dans le cadre des programmes approuvés ; le guide ne fournit pas de formule individuelle unique.");
+}
+
+function calculerAidesRegionales() {
+    return calculerSansMontant("aides_regionales", analyserAidesRegionales(), "Les conditions et montants sont définis par la Région compétente.");
+}
+
+/* =========================================================
+   CALCUL GLOBAL
+========================================================= */
+
+function calculerToutesLesAides() {
+    return [
+        calculerAideBase(),
+        calculerEcoregime(),
+        calculerAideRedistributive(),
+        calculerACJA(),
+        calculerLegumineusesGraines(),
+        calculerLegumineusesFourrageres(),
+        calculerBleDur(),
+        calculerPommeTerreFeculiere(),
+        calculerRiz(),
+        calculerHoublon(),
+        calculerSemencesGraminees(),
+        calculerChanvre(),
+        calculerMaraichage(),
+        calculerFruitsTransformes(),
+        calculerBovins(),
+        calculerVeauxQualite(),
+        calculerOvins(),
+        calculerCaprins(),
+        calculerBovinsCorse(),
+        calculerPetitsRuminantsCorse(),
+        calculerICHNAnimale(),
+        calculerICHNVegetale(),
+        calculerCAB(),
+        calculerMAEC(),
+        calculerAssuranceMRC(),
+        calculerPredation(),
+        calculerProgrammesSectoriels(),
+        calculerAidesRegionales()
+    ];
+}
+
+function calculerSyntheseFinanciere() {
+    const calculs = calculerToutesLesAides().filter(c => c.montant !== null);
+    const totaux = {
+        campagne2026: 0,
+        profilExploitation: 0,
+        reference2024: 0,
+        reference2025: 0,
+        partiel: 0
+    };
+
+    calculs.forEach(c => {
+        if (c.type === TYPE_CALCUL.CAMPAGNE_2026) totaux.campagne2026 += c.montant;
+        else if (c.type === TYPE_CALCUL.PROFIL_EXPLOITATION) totaux.profilExploitation += c.montant;
+        else if (c.type === TYPE_CALCUL.REFERENCE_2024) totaux.reference2024 += c.montant;
+        else if (c.type === TYPE_CALCUL.REFERENCE_2025) totaux.reference2025 += c.montant;
+        else if (c.type === TYPE_CALCUL.PARTIEL) totaux.partiel += c.montant;
+    });
+
+    Object.keys(totaux).forEach(cle => { totaux[cle] = arrondirMontant(totaux[cle]); });
+    return totaux;
+}
+
+
+==========================================================================================
+FICHIER : modules/questionnaire.js
+==========================================================================================
+
+/* =========================================================
+   QUESTIONNAIRE DYNAMIQUE
+========================================================= */
+
+let etapeQuestionnaire = 0;
+
+function positif(chemin) {
+    return nombreOuZero(lireProfil(chemin)) > 0;
+}
+
+function estGAEC() {
+    return lireProfil("general.statutJuridique") === "GAEC";
+}
+
+function aDPB() {
+    return lireProfil("dpb.detientDPB") === true;
+}
+
+function surfaceSignificative(chemin) {
+    const surface = nombreOuZero(lireProfil(chemin));
+    const admissible = nombreOuZero(lireProfil("surfaces.surfaceAdmissible"));
+    return admissible > 0 && surface / admissible >= 0.05;
+}
+
+function estEnZoneICHN() {
+    return lireProfil("ichn.zoneEligible") === true;
+}
+
+function aICHNAnimale() {
+    return lireProfil("ichn.aideAnimale") === true;
+}
+
+function aICHNVegetale() {
+    return lireProfil("ichn.aideVegetale") === true;
+}
+
+function estICHNHorsMontagne() {
+    return ["piemont", "zone_defavorisee_simple"].includes(lireProfil("ichn.typeZone"));
+}
+
+function enConversionBio() {
+    return lireProfil("conversionBio.enConversion") === true;
+}
+
+function souhaiteMAEC() {
+    return lireProfil("maec.souhaiteExaminer") === true;
+}
+
+function aBovins() {
+    return lireProfil("bovins.present") === true;
+}
+
+function aVeaux() {
+    return lireProfil("veauxQualite.present") === true;
+}
+
+function aOvins() {
+    return lireProfil("ovins.present") === true;
+}
+
+function aCaprins() {
+    return lireProfil("caprins.present") === true;
+}
+
+function estCorseProfil() {
+    return lireProfil("general.territoire") === "Corse";
+}
+
+function premiereInstallation() {
+    return lireProfil("installation.premiereInstallation") === true;
+}
+
+function programmeSectorielConcerne() {
+    return lireProfil("programmesSectoriels.concerne") === true;
+}
+
+function programmeSectorielOPAOP() {
+    return ["fruits_legumes", "huile_olive", "proteines", "horticulture", "veau_label", "lapin", "riz"].includes(lireProfil("programmesSectoriels.secteur"));
+}
+
+function souhaiteRegional() {
+    return lireProfil("regional.souhaiteExaminer") === true;
+}
+
+function q(chemin, label, type = "number", options = {}) {
+    return { chemin, label, type, ...options };
+}
+
+const OUI_NON_INCONNU = [
+    { valeur: "", texte: "Je ne sais pas" },
+    { valeur: "true", texte: "Oui" },
+    { valeur: "false", texte: "Non" }
+];
+
+const ETAPES_QUESTIONNAIRE = [
+    {
+        titre: "Votre exploitation",
+        sousTitre: "Informations générales utilisées par les différents dispositifs.",
+        questions: [
+            q("general.territoire", "Territoire principal", "select", {
+                options: [
+                    { valeur: "Hexagone", texte: "France métropolitaine hors Corse" },
+                    { valeur: "Corse", texte: "Corse" },
+                    { valeur: "Outre-mer", texte: "Outre-mer – orientation partielle seulement" }
+                ],
+                refreshOnChange: true
+            }),
+            q("general.region", "Région", "text", { placeholder: "Ex. Occitanie" }),
+            q("general.departement", "Département", "text", { placeholder: "Ex. Haute-Garonne" }),
+            q("general.statutJuridique", "Statut juridique", "select", {
+                options: [
+                    { valeur: "", texte: "Sélectionner" },
+                    { valeur: "individuel", texte: "Exploitant individuel" },
+                    { valeur: "GAEC", texte: "GAEC" },
+                    { valeur: "EARL", texte: "EARL" },
+                    { valeur: "SCEA", texte: "SCEA" },
+                    { valeur: "SAS", texte: "SAS" },
+                    { valeur: "SARL", texte: "SARL" },
+                    { valeur: "SA", texte: "SA" },
+                    { valeur: "autre", texte: "Autre" }
+                ],
+                refreshOnChange: true
+            }),
+            q("general.gaecTotal", "S'agit-il d'un GAEC total ?", "yesno", { afficherSi: estGAEC }),
+            q("general.nombreAssocies", "Nombre d'associés", "number", { min: 1, afficherSi: estGAEC }),
+            q("agriculteurActif.statut", "Le demandeur répond-il à la définition d'agriculteur actif au sens de la PAC ?", "select", {
+                options: OUI_NON_INCONNU,
+                aide: "Cette V1 utilise cette réponse comme critère transversal. Un contrôle détaillé du statut pourra être ajouté ensuite."
+            })
+        ]
+    },
+
+    {
+        titre: "Surfaces et DPB",
+        sousTitre: "Base de calcul des paiements découplés et de plusieurs autres aides.",
+        questions: [
+            q("surfaces.sau", "SAU totale", "number", { suffixe: "ha", min: 0, step: 0.01 }),
+            q("surfaces.surfaceAdmissible", "Surface admissible PAC", "number", { suffixe: "ha", min: 0, step: 0.01, refreshOnChange: true }),
+            q("surfaces.terresArables", "Terres arables", "number", { suffixe: "ha", min: 0, step: 0.01, refreshOnChange: true }),
+            q("surfaces.prairiesPermanentes", "Prairies permanentes", "number", { suffixe: "ha", min: 0, step: 0.01, refreshOnChange: true }),
+            q("surfaces.culturesPermanentes", "Cultures permanentes", "number", { suffixe: "ha", min: 0, step: 0.01, refreshOnChange: true }),
+            q("surfaces.surfaceFourragere", "Surface fourragère totale", "number", { suffixe: "ha", min: 0, step: 0.01 }),
+            q("dpb.detientDPB", "L'exploitation détient-elle des DPB ?", "yesno", { refreshOnChange: true }),
+            q("dpb.nombreDPB", "Nombre de DPB détenus", "number", { min: 0, step: 0.01, afficherSi: aDPB }),
+            q("dpb.nombreDPBActives", "Nombre de DPB activés ou activables", "number", { min: 0, step: 0.01, afficherSi: aDPB }),
+            q("dpb.valeurMoyenneDPB", "Valeur moyenne réelle des DPB", "number", { suffixe: "€/DPB", min: 0, step: 0.01, afficherSi: aDPB, aide: "Laissez vide si inconnue." }),
+            q("dpb.valeurTotaleDPB", "Valeur totale des DPB activés, si connue", "number", { suffixe: "€", min: 0, step: 0.01, afficherSi: aDPB, aide: "Si cette valeur est renseignée, elle est prioritaire pour le calcul de l'aide de base." })
+        ]
+    },
+
+    {
+        titre: "Écorégime et jeune agriculteur",
+        sousTitre: "Pratiques, certifications, biodiversité, haies et installation.",
+        questions: [
+            q("ecoregime.pointsDiversification", "Points de diversification des cultures", "number", { min: 0, max: 5, step: 1, afficherSi: () => surfaceSignificative("surfaces.terresArables"), aide: "4 points = niveau de base ; 5 points = niveau supérieur selon le guide." }),
+            q("ecoregime.pourcentagePrairiesNonLabourees", "Part des prairies permanentes non labourées", "number", { suffixe: "%", min: 0, max: 100, step: 0.1, afficherSi: () => surfaceSignificative("surfaces.prairiesPermanentes") }),
+            q("ecoregime.pourcentageInterRangsCouverts", "Part des inter-rangs couverts en cultures permanentes", "number", { suffixe: "%", min: 0, max: 100, step: 0.1, afficherSi: () => surfaceSignificative("surfaces.culturesPermanentes") }),
+            q("environnement.agricultureBiologique", "Toute l'exploitation est-elle certifiée AB ?", "yesno"),
+            q("environnement.hveRenovee", "Certification HVE rénovée ?", "yesno"),
+            q("environnement.certificationCE2Plus", "Certification CE2+ reconnue ?", "yesno"),
+            q("ecoregime.pourcentageIAEEtJacheresSAU", "IAE et jachères dans la SAU", "number", { suffixe: "%", min: 0, max: 100, step: 0.01 }),
+            q("surfaces.pourcentageHaiesSAU", "Haies sur la SAU admissible", "number", { suffixe: "%", min: 0, max: 100, step: 0.01 }),
+            q("surfaces.pourcentageHaiesTerresArables", "Haies sur les terres arables", "number", { suffixe: "%", min: 0, max: 100, step: 0.01, afficherSi: () => surfaceSignificative("surfaces.terresArables") }),
+            q("environnement.certificationGestionDurableHaies", "Certification reconnue de gestion durable des haies ?", "yesno"),
+            q("environnement.maecEntretienLigneux", "Êtes-vous engagé en MAEC Biodiversité – entretien des ligneux ?", "yesno"),
+
+            q("installation.premiereInstallation", "Première installation récente ?", "yesno", { refreshOnChange: true }),
+            q("installation.age", "Âge du jeune agriculteur / associé concerné", "number", { min: 18, max: 100, afficherSi: premiereInstallation }),
+            q("installation.anneeInstallation", "Année de première installation", "number", { min: 1900, max: 2026, afficherSi: premiereInstallation }),
+            q("installation.diplomeAgricoleNiveau4OuPlus", "Diplôme agricole de niveau 4 ou supérieur ?", "yesno", { afficherSi: premiereInstallation }),
+            q("installation.diplomeNiveau3OuPlus", "Diplôme de niveau 3 ou supérieur, quelle que soit la spécialité ?", "yesno", { afficherSi: premiereInstallation }),
+            q("installation.experienceAgricoleMois", "Expérience professionnelle agricole", "number", { suffixe: "mois", min: 0, afficherSi: premiereInstallation }),
+            q("installation.nombreAssociesJAEligibles", "Nombre d'associés JA potentiellement éligibles", "number", { min: 0, afficherSi: () => premiereInstallation() && estGAEC(), aide: "Utilisé pour une estimation prudente de la transparence GAEC." })
+        ]
+    },
+
+    {
+        titre: "Productions végétales",
+        sousTitre: "Renseignez 0 lorsqu'une production n'est pas présente. Des questions complémentaires apparaissent selon les surfaces.",
+        questions: [
+            q("productionsVegetales.legumineusesGraines.surface", "Légumineuses à graines / déshydratation / semences", "number", { suffixe: "ha", min: 0, step: 0.01, refreshOnChange: true }),
+            q("productionsVegetales.legumineusesGraines.destination", "Destination principale", "select", { afficherSi: () => positif("productionsVegetales.legumineusesGraines.surface"), options: [
+                { valeur: "", texte: "Sélectionner" }, { valeur: "graines", texte: "Graines / protéagineux / soja / légumes secs" }, { valeur: "deshydratation", texte: "Déshydratation" }, { valeur: "semences", texte: "Production de semences" }
+            ], refreshOnChange: true }),
+            q("productionsVegetales.legumineusesGraines.contratDeshydratation", "Contrat avec une entreprise de déshydratation ?", "yesno", { afficherSi: () => lireProfil("productionsVegetales.legumineusesGraines.destination") === "deshydratation" }),
+            q("productionsVegetales.legumineusesGraines.melangeProteagineuxPourcent", "Si mélange céréales/protéagineux : part de protéagineux", "number", { suffixe: "%", min: 0, max: 100, afficherSi: () => positif("productionsVegetales.legumineusesGraines.surface"), aide: "Laissez vide si ce n'est pas un mélange." }),
+
+            q("productionsVegetales.legumineusesFourrageres.surface", "Légumineuses fourragères", "number", { suffixe: "ha", min: 0, step: 0.01, refreshOnChange: true }),
+            q("productionsVegetales.legumineusesFourrageres.zone", "Zone des légumineuses fourragères", "select", { afficherSi: () => positif("productionsVegetales.legumineusesFourrageres.surface"), options: [
+                { valeur: "", texte: "Sélectionner" }, { valeur: "plaine_piemont", texte: "Plaine / piémont" }, { valeur: "montagne", texte: "Montagne / haute montagne" }
+            ] }),
+            q("productionsVegetales.legumineusesFourrageres.ugb", "UGB détenues pour ce critère", "number", { min: 0, step: 0.1, afficherSi: () => positif("productionsVegetales.legumineusesFourrageres.surface") }),
+            q("productionsVegetales.legumineusesFourrageres.contratEleveur5UGB", "Contrat direct avec un éleveur détenant au moins 5 UGB ?", "yesno", { afficherSi: () => positif("productionsVegetales.legumineusesFourrageres.surface") }),
+            q("productionsVegetales.legumineusesFourrageres.melangeLegumineusesPourcent", "Si mélange : part de légumineuses à l'implantation", "number", { suffixe: "%", min: 0, max: 100, afficherSi: () => positif("productionsVegetales.legumineusesFourrageres.surface"), aide: "Laissez vide si culture pure." }),
+            q("productionsVegetales.legumineusesFourrageres.melangeAvecGraminees", "Mélange légumineuses / graminées ?", "yesno", { afficherSi: () => positif("productionsVegetales.legumineusesFourrageres.surface"), refreshOnChange: true }),
+            q("productionsVegetales.legumineusesFourrageres.anneeSemis", "S'agit-il de l'année du semis ?", "yesno", { afficherSi: () => lireProfil("productionsVegetales.legumineusesFourrageres.melangeAvecGraminees") === true }),
+
+            q("productionsVegetales.bleDur.surface", "Blé dur", "number", { suffixe: "ha", min: 0, step: 0.01, refreshOnChange: true }),
+            q("productionsVegetales.bleDur.contratCollecteur", "Contrat annuel de livraison avec un collecteur ?", "yesno", { afficherSi: () => positif("productionsVegetales.bleDur.surface") }),
+
+            q("productionsVegetales.pommeTerreFeculiere.surface", "Pommes de terre féculières", "number", { suffixe: "ha", min: 0, step: 0.01, refreshOnChange: true }),
+            q("productionsVegetales.pommeTerreFeculiere.contratTransformation", "Contrat de culture avec transformation / OP / coopérative ?", "yesno", { afficherSi: () => positif("productionsVegetales.pommeTerreFeculiere.surface") }),
+
+            q("productionsVegetales.riz.surface", "Riz", "number", { suffixe: "ha", min: 0, step: 0.01 }),
+            q("productionsVegetales.houblon.surface", "Houblon", "number", { suffixe: "ha", min: 0, step: 0.01 }),
+
+            q("productionsVegetales.semencesGraminees.surface", "Semences de graminées prairiales", "number", { suffixe: "ha", min: 0, step: 0.01, refreshOnChange: true }),
+            q("productionsVegetales.semencesGraminees.contratCulture", "Contrat de culture ?", "yesno", { afficherSi: () => positif("productionsVegetales.semencesGraminees.surface") }),
+            q("productionsVegetales.semencesGraminees.varieteAutorisee", "Variété autorisée / cataloguée ?", "yesno", { afficherSi: () => positif("productionsVegetales.semencesGraminees.surface") }),
+            q("productionsVegetales.semencesGraminees.usageGazonUniquement", "Production destinée uniquement au gazon ?", "yesno", { afficherSi: () => positif("productionsVegetales.semencesGraminees.surface") }),
+
+            q("productionsVegetales.chanvre.surface", "Chanvre", "number", { suffixe: "ha", min: 0, step: 0.01, refreshOnChange: true }),
+            q("productionsVegetales.chanvre.contratTransformationOuSemences", "Contrat de transformation ou de semences certifiées ?", "yesno", { afficherSi: () => positif("productionsVegetales.chanvre.surface") }),
+            q("productionsVegetales.chanvre.thcConforme", "Conditions réglementaires relatives au chanvre respectées ?", "yesno", { afficherSi: () => positif("productionsVegetales.chanvre.surface") }),
+
+            q("productionsVegetales.maraichage.surfaceLegumesFrais", "Légumes frais éligibles au petit maraîchage", "number", { suffixe: "ha", min: 0, step: 0.01 }),
+            q("productionsVegetales.maraichage.surfacePetitsFruitsRouges", "Petits fruits rouges", "number", { suffixe: "ha", min: 0, step: 0.01 }),
+
+            q("productionsVegetales.fruitsTransformes.pruneEnte", "Prune d'Ente destinée à la transformation", "number", { suffixe: "ha", min: 0, step: 0.01, refreshOnChange: true }),
+            q("productionsVegetales.fruitsTransformes.ceriseBigarreau", "Cerise Bigarreau destinée à la transformation", "number", { suffixe: "ha", min: 0, step: 0.01, refreshOnChange: true }),
+            q("productionsVegetales.fruitsTransformes.poireWilliams", "Poire Williams destinée à la transformation", "number", { suffixe: "ha", min: 0, step: 0.01, refreshOnChange: true }),
+            q("productionsVegetales.fruitsTransformes.pechePavie", "Pêche Pavie destinée à la transformation", "number", { suffixe: "ha", min: 0, step: 0.01, refreshOnChange: true }),
+            q("productionsVegetales.fruitsTransformes.tomateIndustrie", "Tomate d'industrie", "number", { suffixe: "ha", min: 0, step: 0.01, refreshOnChange: true }),
+            q("productionsVegetales.fruitsTransformes.deboucheIndustriel", "Adhésion OP reconnue ou contrat avec une usine de transformation ?", "yesno", { afficherSi: () => sommeSurfacesFruitsTransformes() > 0 })
+        ]
+    },
+
+    {
+        titre: "Élevage",
+        sousTitre: "Aides bovines, veaux de qualité, ovins, caprins et cas Corse.",
+        questions: [
+            q("bovins.present", "Avez-vous un atelier bovin ?", "yesno", { refreshOnChange: true }),
+            q("bovins.ugbTotal", "UGB bovines totales à la date de référence", "number", { min: 0, step: 0.1, afficherSi: aBovins }),
+            q("bovins.ugbNiveauSuperieur", "UGB potentiellement au niveau supérieur", "number", { min: 0, step: 0.1, afficherSi: aBovins }),
+            q("bovins.ugbNiveauBase", "UGB potentiellement au niveau de base", "number", { min: 0, step: 0.1, afficherSi: aBovins }),
+            q("bovins.animauxDetenus6Mois", "Animaux concernés détenus au moins 6 mois ?", "yesno", { afficherSi: aBovins }),
+            q("bovins.identificationConforme", "Identification / enregistrement conformes ?", "yesno", { afficherSi: aBovins }),
+
+            q("veauxQualite.present", "Produisez-vous des veaux sous la mère / bio éligibles ?", "yesno", { refreshOnChange: true, afficherSi: () => !estCorseProfil() }),
+            q("veauxQualite.nombreVeauxEligibles", "Nombre de veaux potentiellement éligibles", "number", { min: 0, afficherSi: aVeaux }),
+            q("veauxQualite.labelRouge", "Label rouge ?", "yesno", { afficherSi: aVeaux }),
+            q("veauxQualite.igpRoseePyreneesCatalanes", "IGP Rosée des Pyrénées Catalanes ?", "yesno", { afficherSi: aVeaux }),
+            q("veauxQualite.agricultureBiologique", "Veaux en agriculture biologique ?", "yesno", { afficherSi: aVeaux }),
+            q("veauxQualite.detention45Jours", "Détention minimale de 45 jours respectée ?", "yesno", { afficherSi: aVeaux }),
+            q("veauxQualite.identificationConforme", "Identification conforme ?", "yesno", { afficherSi: aVeaux }),
+
+            q("ovins.present", "Atelier ovin ?", "yesno", { refreshOnChange: true, afficherSi: () => !estCorseProfil() }),
+            q("ovins.nombreBrebis", "Nombre de brebis", "number", { min: 0, afficherSi: aOvins }),
+            q("ovins.nombreBrebisPresentes1JanvierNMoins1", "Brebis présentes au 1er janvier N-1", "number", { min: 0, afficherSi: aOvins }),
+            q("ovins.nombreAgneauxVendusNMoins1", "Agneaux vendus en N-1", "number", { min: 0, afficherSi: aOvins }),
+            q("ovins.nouveauProducteur", "Nouvel atelier ovin depuis moins de 3 ans ?", "yesno", { afficherSi: aOvins }),
+            q("ovins.detention100Jours", "Détention pendant 100 jours respectée ?", "yesno", { afficherSi: aOvins }),
+            q("ovins.identificationConforme", "Identification conforme ?", "yesno", { afficherSi: aOvins }),
+
+            q("caprins.present", "Atelier caprin ?", "yesno", { refreshOnChange: true, afficherSi: () => !estCorseProfil() }),
+            q("caprins.nombreChevres", "Nombre de chèvres", "number", { min: 0, afficherSi: aCaprins }),
+            q("caprins.detention100Jours", "Détention pendant 100 jours respectée ?", "yesno", { afficherSi: aCaprins }),
+            q("caprins.identificationConforme", "Identification conforme ?", "yesno", { afficherSi: aCaprins }),
+
+            q("petitsRuminantsCorse.nombreBrebis", "Corse – nombre de brebis", "number", { min: 0, afficherSi: estCorseProfil }),
+            q("petitsRuminantsCorse.nombreChevres", "Corse – nombre de chèvres", "number", { min: 0, afficherSi: estCorseProfil }),
+            q("petitsRuminantsCorse.sousAOPBrocciu", "Atelier sous AOP Brocciu ?", "yesno", { afficherSi: estCorseProfil }),
+            q("petitsRuminantsCorse.detention100Jours", "Détention 100 jours respectée ?", "yesno", { afficherSi: estCorseProfil }),
+            q("petitsRuminantsCorse.identificationConforme", "Identification conforme ?", "yesno", { afficherSi: estCorseProfil })
+        ]
+    },
+
+    {
+        titre: "ICHN, conversion bio et MAEC",
+        sousTitre: "Aides surfaciques du développement rural.",
+        questions: [
+            q("ichn.zoneEligible", "Avez-vous des surfaces en zone éligible à l'ICHN ?", "select", { options: OUI_NON_INCONNU, refreshOnChange: true }),
+            q("ichn.typeZone", "Type de zone ICHN", "select", { afficherSi: estEnZoneICHN, options: [
+                { valeur: "", texte: "Sélectionner" }, { valeur: "haute_montagne", texte: "Haute montagne" }, { valeur: "montagne", texte: "Montagne" }, { valeur: "piemont", texte: "Piémont" }, { valeur: "zone_defavorisee_simple", texte: "Zone défavorisée simple / autre hors montagne" }
+            ], refreshOnChange: true }),
+            q("ichn.pourcentageSAUZoneDefavorisee", "Part de la SAU située en zone défavorisée", "number", { suffixe: "%", min: 0, max: 100, afficherSi: estEnZoneICHN }),
+            q("ichn.partRevenuAgricolePourcent", "Part du revenu provenant de l'activité agricole", "number", { suffixe: "%", min: 0, max: 100, afficherSi: estEnZoneICHN }),
+            q("ichn.siegeEnZoneDefavorisee", "Siège d'exploitation situé en zone défavorisée ?", "yesno", { afficherSi: () => estEnZoneICHN() && estICHNHorsMontagne() }),
+            q("ichn.aideAnimale", "Surfaces fourragères en zone défavorisée ?", "yesno", { afficherSi: estEnZoneICHN, refreshOnChange: true }),
+            q("ichn.surfacesFourrageresEligibles", "Surface fourragère en zone défavorisée", "number", { suffixe: "ha", min: 0, step: 0.01, afficherSi: aICHNAnimale }),
+            q("ichn.ugb", "UGB retenues pour l'ICHN", "number", { suffixe: "UGB", min: 0, step: 0.1, afficherSi: aICHNAnimale }),
+            q("ichn.aideVegetale", "Cultures de vente en zone de montagne ?", "yesno", { afficherSi: estEnZoneICHN, refreshOnChange: true }),
+            q("ichn.surfacesVegetalesEligibles", "Surface de cultures de vente en montagne", "number", { suffixe: "ha", min: 0, step: 0.01, afficherSi: aICHNVegetale }),
+            q("ichn.zoneSeche", "Ces surfaces sont-elles en zone sèche ?", "select", { options: OUI_NON_INCONNU, afficherSi: aICHNVegetale }),
+
+            q("conversionBio.enConversion", "Avez-vous des surfaces engagées en conversion à l'agriculture biologique ?", "yesno", { refreshOnChange: true }),
+            q("conversionBio.premiereOuDeuxiemeAnnee", "Ces surfaces sont-elles en première ou deuxième année de conversion ?", "yesno", { afficherSi: enConversionBio }),
+            q("conversionBio.landesEstivesParcours", "CAB – landes, estives et parcours avec atelier d'élevage", "number", { suffixe: "ha", min: 0, step: 0.01, afficherSi: enConversionBio }),
+            q("conversionBio.prairiesAvecElevage", "CAB – prairies avec atelier d'élevage", "number", { suffixe: "ha", min: 0, step: 0.01, afficherSi: enConversionBio }),
+            q("conversionBio.culturesAnnuellesLegumineusesJacheresSemences", "CAB – cultures annuelles, légumineuses, jachères et semences", "number", { suffixe: "ha", min: 0, step: 0.01, afficherSi: enConversionBio }),
+            q("conversionBio.viticulture", "CAB – surfaces viticoles", "number", { suffixe: "ha", min: 0, step: 0.01, afficherSi: enConversionBio }),
+            q("conversionBio.ppamListees", "CAB – PPAM listées à 350 €/ha", "number", { suffixe: "ha", min: 0, step: 0.01, afficherSi: enConversionBio }),
+            q("conversionBio.legumesPleinChampBetterave", "CAB – légumes de plein champ et betterave sucrière", "number", { suffixe: "ha", min: 0, step: 0.01, afficherSi: enConversionBio }),
+            q("conversionBio.maraichageArboricultureAutresPpamSemences", "CAB – maraîchage, arboriculture, autres PPAM et semences concernées", "number", { suffixe: "ha", min: 0, step: 0.01, afficherSi: enConversionBio }),
+
+            q("maec.souhaiteExaminer", "Souhaitez-vous examiner les MAEC surfaciques ?", "yesno", { refreshOnChange: true }),
+            q("maec.offreLocaleConnue", "Savez-vous si une MAEC est ouverte localement ?", "yesno", { afficherSi: souhaiteMAEC }),
+            q("maec.type", "Type de MAEC envisagé", "select", { afficherSi: souhaiteMAEC, options: [
+                { valeur: "", texte: "Je ne sais pas" }, { valeur: "systeme", texte: "Mesure système" }, { valeur: "localisee", texte: "Mesure localisée à la parcelle" }, { valeur: "inconnue", texte: "À déterminer" }
+            ] })
+        ]
+    },
+
+    {
+        titre: "Risques, prédation et autres dispositifs",
+        sousTitre: "Dispositifs qui nécessitent souvent des paramètres locaux ou sectoriels.",
+        questions: [
+            q("assurance.souscritMRC", "Avez-vous souscrit une assurance multirisques climatique des récoltes ?", "yesno", { refreshOnChange: true }),
+            q("assurance.primeAnnuelle", "Prime ou cotisation annuelle MRC", "number", { suffixe: "€", min: 0, step: 0.01, afficherSi: () => lireProfil("assurance.souscritMRC") === true, aide: "Le simulateur peut seulement afficher une référence 2025, car le guide ne donne pas le taux 2026." }),
+
+            q("predation.zoneRisque", "Votre troupeau ovin/caprin pâture-t-il dans une commune classée en cercle de prédation ?", "select", { options: OUI_NON_INCONNU }),
+
+            q("programmesSectoriels.concerne", "Votre activité relève-t-elle d'un programme sectoriel que vous souhaitez examiner ?", "yesno", { refreshOnChange: true }),
+            q("programmesSectoriels.secteur", "Secteur concerné", "select", { afficherSi: programmeSectorielConcerne, refreshOnChange: true, options: [
+                { valeur: "", texte: "Sélectionner" },
+                { valeur: "vin", texte: "Vin" },
+                { valeur: "apiculture", texte: "Apiculture" },
+                { valeur: "fruits_legumes", texte: "Fruits et légumes" },
+                { valeur: "huile_olive", texte: "Olives et huile d'olive" },
+                { valeur: "proteines", texte: "Protéines végétales" },
+                { valeur: "horticulture", texte: "Horticulture" },
+                { valeur: "veau_label", texte: "Veau Label rouge" },
+                { valeur: "lapin", texte: "Lapin" },
+                { valeur: "riz", texte: "Riz" }
+            ] }),
+            q("programmesSectoriels.membreOPAOP", "Êtes-vous membre d'une OP/AOP porteuse d'un programme opérationnel ?", "yesno", { afficherSi: () => programmeSectorielConcerne() && programmeSectorielOPAOP() }),
+
+            q("regional.souhaiteExaminer", "Souhaitez-vous examiner une aide régionale du Feader ?", "yesno", { refreshOnChange: true }),
+            q("regional.type", "Type d'aide régionale recherchée", "select", { afficherSi: souhaiteRegional, options: [
+                { valeur: "", texte: "Sélectionner" },
+                { valeur: "investissement", texte: "Investissement" },
+                { valeur: "installation", texte: "Installation / dotation" },
+                { valeur: "maec_forfaitaire", texte: "MAEC forfaitaire" },
+                { valeur: "api", texte: "MAEC API – potentiel pollinisateur des abeilles" },
+                { valeur: "prm", texte: "MAEC PRM – races menacées" },
+                { valeur: "gardiennage", texte: "Gardiennage hors prédation" },
+                { valeur: "betteraves", texte: "Gestion des risques betteraves" },
+                { valeur: "leader", texte: "LEADER" },
+                { valeur: "cooperation", texte: "Coopération" },
+                { valeur: "formation", texte: "Formation / échange de connaissances" },
+                { valeur: "autre", texte: "Autre aide régionale" }
+            ] })
+        ]
+    }
+];
+
+/* =========================================================
+   RENDU
+========================================================= */
+
+function convertirValeur(valeur, type) {
+    if (valeur === "") return null;
+    if (valeur === "true") return true;
+    if (valeur === "false") return false;
+    if (type === "number") {
+        const n = Number(valeur);
+        return Number.isFinite(n) ? n : null;
+    }
+    return valeur;
+}
+
+function creerChampQuestion(question) {
+    const valeur = lireProfil(question.chemin);
+    const wrapper = document.createElement("div");
+    wrapper.className = "question-item";
+
+    const label = document.createElement("label");
+    label.className = "question-label";
+    label.textContent = question.label;
+    wrapper.appendChild(label);
+
+    if (question.type === "yesno") {
+        const groupe = document.createElement("div");
+        groupe.className = "yesno-group";
+        [
+            { texte: "Oui", valeur: true },
+            { texte: "Non", valeur: false }
+        ].forEach(option => {
+            const bouton = document.createElement("button");
+            bouton.type = "button";
+            bouton.className = "answer-button" + (valeur === option.valeur ? " selected" : "");
+            bouton.textContent = option.texte;
+            bouton.addEventListener("click", () => {
+                modifierProfil(question.chemin, option.valeur);
+                sauvegarderProfilLocalement();
+                afficherEtape();
+            });
+            groupe.appendChild(bouton);
+        });
+        wrapper.appendChild(groupe);
+    } else if (question.type === "select") {
+        const select = document.createElement("select");
+        (question.options || []).forEach(option => {
+            const opt = document.createElement("option");
+            opt.value = option.valeur;
+            opt.textContent = option.texte;
+            if (String(valeur ?? "") === String(option.valeur)) opt.selected = true;
+            select.appendChild(opt);
+        });
+        select.addEventListener("change", event => {
+            modifierProfil(question.chemin, convertirValeur(event.target.value, "select"));
+            sauvegarderProfilLocalement();
+            if (question.refreshOnChange) afficherEtape();
+        });
+        wrapper.appendChild(select);
+    } else {
+        const ligne = document.createElement("div");
+        ligne.className = "input-with-suffix";
+        const input = document.createElement("input");
+        input.type = question.type;
+        input.value = valeur ?? "";
+        if (question.placeholder) input.placeholder = question.placeholder;
+        if (question.min !== undefined) input.min = question.min;
+        if (question.max !== undefined) input.max = question.max;
+        if (question.step !== undefined) input.step = question.step;
+        input.addEventListener("change", event => {
+            modifierProfil(question.chemin, convertirValeur(event.target.value, question.type));
+            sauvegarderProfilLocalement();
+            if (question.refreshOnChange) afficherEtape();
+        });
+        ligne.appendChild(input);
+        if (question.suffixe) {
+            const suffixe = document.createElement("span");
+            suffixe.className = "input-suffix";
+            suffixe.textContent = question.suffixe;
+            ligne.appendChild(suffixe);
+        }
+        wrapper.appendChild(ligne);
+    }
+
+    if (question.aide) {
+        const aide = document.createElement("p");
+        aide.className = "question-help";
+        aide.textContent = question.aide;
+        wrapper.appendChild(aide);
+    }
+
+    return wrapper;
+}
+
+function afficherEtape() {
+    const etape = ETAPES_QUESTIONNAIRE[etapeQuestionnaire];
+    document.getElementById("question-title").textContent = etape.titre;
+    document.getElementById("question-subtitle").textContent = etape.sousTitre;
+
+    const zone = document.getElementById("questions-container");
+    zone.innerHTML = "";
+    etape.questions.forEach(question => {
+        if (question.afficherSi && !question.afficherSi()) return;
+        zone.appendChild(creerChampQuestion(question));
+    });
+
+    const pourcentage = ((etapeQuestionnaire + 1) / ETAPES_QUESTIONNAIRE.length) * 100;
+    document.getElementById("progress-bar").style.width = `${pourcentage}%`;
+    document.getElementById("step-counter").textContent = `Étape ${etapeQuestionnaire + 1} sur ${ETAPES_QUESTIONNAIRE.length}`;
+    document.getElementById("previous-button").style.display = etapeQuestionnaire === 0 ? "none" : "inline-flex";
+    document.getElementById("next-button").textContent = etapeQuestionnaire === ETAPES_QUESTIONNAIRE.length - 1 ? "Analyser mon exploitation" : "Continuer";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function etapeSuivante() {
+    sauvegarderProfilLocalement();
+    if (etapeQuestionnaire < ETAPES_QUESTIONNAIRE.length - 1) {
+        etapeQuestionnaire += 1;
+        afficherEtape();
+    } else {
+        afficherResultatsQuestionnaire();
+    }
+}
+
+function etapePrecedente() {
+    if (etapeQuestionnaire > 0) {
+        etapeQuestionnaire -= 1;
+        afficherEtape();
+    }
+}
+
+function libelleTypeCalcul(type) {
+    const libelles = {
+        campagne_2026: "Paramètre 2026 / règle du guide 2026",
+        profil_exploitation: "Donnée réelle de l'exploitation",
+        reference_2024: "Référence 2024",
+        reference_2025: "Référence 2025",
+        partiel: "Calcul partiel / à confirmer",
+        non_calculable: "Non calculable avec les données disponibles"
+    };
+    return libelles[type] || type;
+}
+
+function creerCarteResultat(resultat, calcul) {
+    const carte = document.createElement("article");
+    carte.className = `result-card ${resultat.statut === STATUT_AIDE.A_EXAMINER ? "success" : "warning"}`;
+
+    const montant = calcul && calcul.montant !== null
+        ? `<div class="result-amount">${calcul.montantFormate}</div><div class="result-reference">${libelleTypeCalcul(calcul.type)}</div>`
+        : `<div class="result-reference">${calcul ? libelleTypeCalcul(calcul.type) : ""}</div>`;
+
+    const raisons = resultat.raisons.length
+        ? `<div class="result-details"><strong>Pourquoi ?</strong>${resultat.raisons.map(r => `<p>✓ ${r}</p>`).join("")}</div>`
+        : "";
+
+    const manquants = resultat.informationsManquantes.length
+        ? `<div class="result-details"><strong>À compléter</strong>${resultat.informationsManquantes.map(r => `<p>• ${r}</p>`).join("")}</div>`
+        : "";
+
+    const avertissements = [
+        ...(resultat.verifications || []),
+        ...((calcul && calcul.avertissements) || [])
+    ];
+    const avertissementsHtml = avertissements.length
+        ? `<div class="result-warnings">${[...new Set(avertissements)].map(a => `<p>${a}</p>`).join("")}</div>`
+        : "";
+
+    carte.innerHTML = `
+        <div class="result-status">${resultat.statut === STATUT_AIDE.A_EXAMINER ? "À EXAMINER" : "INFORMATIONS À COMPLÉTER"}</div>
+        <h3>${resultat.nom}</h3>
+        ${montant}
+        ${raisons}
+        ${manquants}
+        ${avertissementsHtml}
+        <div class="result-source">Source : ${resultat.source}</div>
+    `;
+    return carte;
+}
+
+function afficherSynthese(zone) {
+    const synthese = calculerSyntheseFinanciere();
+    const valeurs = [
+        ["Données exploitation", synthese.profilExploitation],
+        ["Calculs / paramètres 2026", synthese.campagne2026],
+        ["Références 2024", synthese.reference2024],
+        ["Références 2025", synthese.reference2025],
+        ["Calculs partiels", synthese.partiel]
+    ].filter(([, montant]) => montant > 0);
+
+    if (!valeurs.length) return;
+    const grille = document.createElement("div");
+    grille.className = "summary-grid";
+    valeurs.forEach(([libelle, montant]) => {
+        const bloc = document.createElement("div");
+        bloc.className = "summary-card";
+        bloc.innerHTML = `<span>${libelle}</span><strong>${formaterMontant(montant)}</strong>`;
+        grille.appendChild(bloc);
+    });
+    zone.appendChild(grille);
+
+    const note = document.createElement("p");
+    note.className = "summary-note";
+    note.textContent = "Les totaux sont séparés par nature : ils ne doivent pas être additionnés comme s'il s'agissait tous de montants définitifs 2026.";
+    zone.appendChild(note);
+}
+
+function afficherResultatsQuestionnaire() {
+    const questionnaire = document.getElementById("questionnaire-card");
+    const zone = document.getElementById("results");
+    questionnaire.style.display = "none";
+    zone.style.display = "block";
+    zone.innerHTML = "";
+
+    const orientations = analyserToutesLesAides();
+    const calculs = calculerToutesLesAides();
+    const aExaminer = orientations.filter(r => r.statut === STATUT_AIDE.A_EXAMINER);
+    const incompletes = orientations.filter(r => r.statut === STATUT_AIDE.INFORMATIONS_MANQUANTES);
+    const nonRetenues = orientations.filter(r => r.statut === STATUT_AIDE.NON_RETENUE);
+
+    const header = document.createElement("div");
+    header.className = "results-header";
+    header.innerHTML = `
+        <span class="eyebrow">ORIENTATION PAC 2026</span>
+        <h2>${aExaminer.length} aide${aExaminer.length > 1 ? "s" : ""} à examiner</h2>
+        <p>Orientation fondée sur les informations saisies et le guide PAC utilisé. Elle ne constitue pas une décision administrative d'éligibilité.</p>
+    `;
+    zone.appendChild(header);
+
+    if (profilExploitation.general.territoire === "Outre-mer") {
+        const alerte = document.createElement("div");
+        alerte.className = "notice warning-notice";
+        alerte.textContent = "Les modalités spécifiques Outre-mer ne sont pas détaillées dans cette version du moteur. Les résultats nationaux affichés doivent être considérés comme incomplets.";
+        zone.appendChild(alerte);
+    }
+
+    afficherSynthese(zone);
+
+    aExaminer.forEach(resultat => {
+        const calcul = calculs.find(c => c.id === resultat.id);
+        zone.appendChild(creerCarteResultat(resultat, calcul));
+    });
+
+    if (incompletes.length) {
+        const titre = document.createElement("h3");
+        titre.className = "results-section-title";
+        titre.textContent = "Informations utiles à compléter";
+        zone.appendChild(titre);
+        incompletes.forEach(resultat => {
+            const calcul = calculs.find(c => c.id === resultat.id);
+            zone.appendChild(creerCarteResultat(resultat, calcul));
+        });
+    }
+
+    if (nonRetenues.length) {
+        const details = document.createElement("details");
+        details.className = "not-retained";
+        const summary = document.createElement("summary");
+        summary.textContent = `${nonRetenues.length} aide(s) non retenue(s) avec les informations actuelles`;
+        details.appendChild(summary);
+        nonRetenues.forEach(resultat => {
+            const ligne = document.createElement("div");
+            ligne.className = "not-retained-item";
+            ligne.innerHTML = `<strong>${resultat.nom}</strong>${resultat.verifications.length ? `<span>${resultat.verifications[0]}</span>` : ""}`;
+            details.appendChild(ligne);
+        });
+        zone.appendChild(details);
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "results-actions";
+    actions.innerHTML = `
+        <button type="button" class="secondary-button" id="edit-results-button">Modifier mes réponses</button>
+        <button type="button" class="danger-button" id="reset-results-button">Recommencer à zéro</button>
+    `;
+    zone.appendChild(actions);
+
+    document.getElementById("edit-results-button").addEventListener("click", recommencerQuestionnaire);
+    document.getElementById("reset-results-button").addEventListener("click", () => {
+        reinitialiserProfil();
+        etapeQuestionnaire = 0;
+        zone.style.display = "none";
+        questionnaire.style.display = "block";
+        afficherEtape();
+    });
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function recommencerQuestionnaire() {
+    document.getElementById("results").style.display = "none";
+    document.getElementById("questionnaire-card").style.display = "block";
+    etapeQuestionnaire = 0;
+    afficherEtape();
+}
+
+function initialiserQuestionnaire() {
+    chargerProfilLocal();
+    afficherEtape();
+    document.getElementById("next-button").addEventListener("click", etapeSuivante);
+    document.getElementById("previous-button").addEventListener("click", etapePrecedente);
+    document.getElementById("reset-button").addEventListener("click", () => {
+        if (!confirm("Effacer toutes les réponses enregistrées dans ce navigateur ?")) return;
+        reinitialiserProfil();
+        etapeQuestionnaire = 0;
+        document.getElementById("results").style.display = "none";
+        document.getElementById("questionnaire-card").style.display = "block";
+        afficherEtape();
+    });
+}
