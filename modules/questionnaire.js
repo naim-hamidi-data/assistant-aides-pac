@@ -243,6 +243,52 @@ function culturesPermanentesSignificatives() {
     ) >= 0.05;
 }
 
+/* =========================================================
+   CONDITIONS ICHN
+========================================================= */
+
+function estEnZoneICHN() {
+
+    return (
+        lireProfil(
+            "ichn.zoneEligible"
+        ) === true
+    );
+}
+
+
+function aICHNAnimale() {
+
+    return (
+        lireProfil(
+            "ichn.aideAnimale"
+        ) === true
+    );
+}
+
+
+function aICHNVegetale() {
+
+    return (
+        lireProfil(
+            "ichn.aideVegetale"
+        ) === true
+    );
+}
+
+
+function estICHNHorsMontagne() {
+
+    const zone =
+        lireProfil(
+            "ichn.typeZone"
+        );
+
+    return (
+        zone === "piemont" ||
+        zone === "zone_defavorisee_simple"
+    );
+}
 
 /* =========================================================
    QUESTIONS
@@ -1208,7 +1254,327 @@ const ETAPES_QUESTIONNAIRE = [
         ]
     },
 
+{
+    titre:
+        "Zone défavorisée — ICHN",
 
+    sousTitre:
+        "Ces informations permettent d'identifier l'ICHN animale et l'ICHN végétale.",
+
+    questions: [
+
+        {
+            chemin:
+                "ichn.zoneEligible",
+
+            label:
+                "Avez-vous des surfaces situées dans une zone éligible à l'ICHN ?",
+
+            type:
+                "select",
+
+            refreshOnChange:
+                true,
+
+            options: [
+
+                {
+                    valeur: "",
+                    texte:
+                        "Je ne sais pas"
+                },
+
+                {
+                    valeur: "true",
+                    texte:
+                        "Oui"
+                },
+
+                {
+                    valeur: "false",
+                    texte:
+                        "Non"
+                }
+            ],
+
+            aide:
+                "Le zonage ICHN distingue notamment montagne, haute montagne, piémont et autres zones défavorisées."
+        },
+
+
+        {
+            chemin:
+                "ichn.typeZone",
+
+            label:
+                "Dans quel type de zone se situent principalement les surfaces concernées ?",
+
+            type:
+                "select",
+
+            afficherSi:
+                estEnZoneICHN,
+
+            options: [
+
+                {
+                    valeur: "",
+                    texte:
+                        "Je ne sais pas"
+                },
+
+                {
+                    valeur:
+                        "haute_montagne",
+
+                    texte:
+                        "Haute montagne"
+                },
+
+                {
+                    valeur:
+                        "montagne",
+
+                    texte:
+                        "Montagne"
+                },
+
+                {
+                    valeur:
+                        "piemont",
+
+                    texte:
+                        "Piémont"
+                },
+
+                {
+                    valeur:
+                        "zone_defavorisee_simple",
+
+                    texte:
+                        "Autre zone défavorisée"
+                }
+            ]
+        },
+
+
+        {
+            chemin:
+                "ichn.pourcentageSAUZoneDefavorisee",
+
+            label:
+                "Quelle part de votre SAU est située en zone défavorisée ?",
+
+            type:
+                "number",
+
+            suffixe:
+                "%",
+
+            min: 0,
+
+            max: 100,
+
+            step: 0.1,
+
+            afficherSi:
+                estEnZoneICHN
+        },
+
+
+        {
+            chemin:
+                "ichn.partRevenuAgricolePourcent",
+
+            label:
+                "Quelle part approximative de votre revenu provient de l'activité agricole ?",
+
+            type:
+                "number",
+
+            suffixe:
+                "%",
+
+            min: 0,
+
+            max: 100,
+
+            step: 1,
+
+            afficherSi:
+                estEnZoneICHN,
+
+            aide:
+                "Cette information est utilisée pour l'analyse des conditions ICHN."
+        },
+
+
+        {
+            chemin:
+                "ichn.siegeEnZoneDefavorisee",
+
+            label:
+                "Votre siège d'exploitation est-il situé en zone défavorisée ?",
+
+            type:
+                "yesno",
+
+            afficherSi:
+                estICHNHorsMontagne
+        },
+
+
+        /* =================================================
+           ICHN ANIMALE
+        ================================================= */
+
+        {
+            chemin:
+                "ichn.aideAnimale",
+
+            label:
+                "Exploitez-vous des surfaces fourragères en zone défavorisée ?",
+
+            type:
+                "yesno",
+
+            refreshOnChange:
+                true,
+
+            afficherSi:
+                estEnZoneICHN
+        },
+
+
+        {
+            chemin:
+                "ichn.surfacesFourrageresEligibles",
+
+            label:
+                "Surface fourragère située en zone défavorisée",
+
+            type:
+                "number",
+
+            suffixe:
+                "ha",
+
+            min: 0,
+
+            step: 0.01,
+
+            afficherSi:
+                aICHNAnimale
+        },
+
+
+        {
+            chemin:
+                "ichn.ugb",
+
+            label:
+                "Nombre d'UGB prises en compte pour l'ICHN",
+
+            type:
+                "number",
+
+            suffixe:
+                "UGB",
+
+            min: 0,
+
+            step: 0.1,
+
+            afficherSi:
+                aICHNAnimale
+        },
+
+
+        /* =================================================
+           ICHN VÉGÉTALE
+        ================================================= */
+
+        {
+            chemin:
+                "ichn.aideVegetale",
+
+            label:
+                "Exploitez-vous des cultures de vente en zone de montagne ?",
+
+            type:
+                "yesno",
+
+            refreshOnChange:
+                true,
+
+            afficherSi:
+                estEnZoneICHN
+        },
+
+
+        {
+            chemin:
+                "ichn.surfacesVegetalesEligibles",
+
+            label:
+                "Surface admissible en cultures de vente située en montagne",
+
+            type:
+                "number",
+
+            suffixe:
+                "ha",
+
+            min: 0,
+
+            step: 0.01,
+
+            afficherSi:
+                aICHNVegetale
+        },
+
+
+        {
+            chemin:
+                "ichn.zoneSeche",
+
+            label:
+                "Ces surfaces sont-elles classées en zone sèche ?",
+
+            type:
+                "select",
+
+            afficherSi:
+                aICHNVegetale,
+
+            options: [
+
+                {
+                    valeur: "",
+                    texte:
+                        "Je ne sais pas"
+                },
+
+                {
+                    valeur:
+                        "true",
+
+                    texte:
+                        "Oui"
+                },
+
+                {
+                    valeur:
+                        "false",
+
+                    texte:
+                        "Non"
+                }
+            ]
+        }
+    ]
+},
+   
     /* =====================================================
        ÉTAPE 5
     ===================================================== */
