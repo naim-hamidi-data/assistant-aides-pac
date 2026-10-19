@@ -426,23 +426,71 @@ const PROFIL_INITIAL = {
 
     ichn: {
 
-        zoneEligible: null,
+    /* =====================================================
+       ZONAGE ICHN
+    ===================================================== */
 
-        typeZone: null,
-        // montagne
-        // haute_montagne
-        // autre_zone_defavorisee
+    zoneEligible: null,
 
-        aideAnimale: null,
+    // Valeurs prévues :
+    // "haute_montagne"
+    // "montagne"
+    // "piemont"
+    // "zone_defavorisee_simple"
+    typeZone: null,
 
-        aideVegetale: null,
+    // Certaines modalités distinguent zone sèche / hors zone sèche
+    zoneSeche: null,
 
-        ugb: null,
+    // Pourcentage de la SAU totale située en zone défavorisée
+    pourcentageSAUZoneDefavorisee: null,
 
-        surfacesFourrageresEligibles: null,
+    // Important notamment pour l'ICHN animale hors montagne
+    siegeEnZoneDefavorisee: null,
 
-        surfacesVegetalesEligibles: null
-    },
+
+    /* =====================================================
+       REVENU
+    ===================================================== */
+
+    // Part du revenu provenant de l'activité agricole
+    partRevenuAgricolePourcent: null,
+
+
+    /* =====================================================
+       ICHN ANIMALE
+    ===================================================== */
+
+    aideAnimale: null,
+
+    // Nombre d'UGB retenues
+    ugb: null,
+
+    // Surface fourragère située en zone défavorisée
+    surfacesFourrageresEligibles: null,
+
+
+    /* =====================================================
+       PARAMÈTRES LOCAUX
+       nécessaires plus tard pour le calcul précis
+    ===================================================== */
+
+    // Montant variable défini selon la sous-zone
+    montantVariableSousZone: null,
+
+    // Coefficient lié au chargement
+    coefficientModulationChargement: null,
+
+
+    /* =====================================================
+       ICHN VÉGÉTALE
+    ===================================================== */
+
+    aideVegetale: null,
+
+    // Surface de cultures de vente éligible en montagne
+    surfacesVegetalesEligibles: null
+},
 
 
     /* -----------------------------------------------------
