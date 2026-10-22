@@ -3,57 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistant PAC 2026</title>
+    <meta name="description" content="Assistant d'orientation et d'estimation des aides PAC à partir du profil de l'exploitation.">
+    <title>Assistant PAC</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <header class="app-header">
     <div class="header-left">
         <div class="logo-block">PAC</div>
         <div class="header-title">
             <strong>Assistant PAC</strong>
-            <span>Orientation et estimation des aides</span>
+            <span>Diagnostic et estimation des aides</span>
         </div>
     </div>
     <div class="header-right">
-        <div class="campaign-badge">Campagne 2026</div>
-        <div class="save-status">Données enregistrées localement</div>
+        <span class="reference-badge">Référentiel PAC 2023–2027</span>
+        <button type="button" class="header-button" id="reset-button">Réinitialiser</button>
     </div>
 </header>
 
 <div class="app-layout">
     <aside class="sidebar">
         <div class="sidebar-heading">
-            <span class="sidebar-label">MON DOSSIER PAC</span>
-            <strong>Exploitation</strong>
+            <span class="sidebar-label">MON DOSSIER</span>
+            <strong>Exploitation agricole</strong>
         </div>
         <nav id="sidebar-steps" class="sidebar-steps"></nav>
         <div class="sidebar-info">
-            <strong>Confidentialité</strong>
-            <p>Les informations renseignées restent enregistrées dans votre navigateur.</p>
+            <strong>Données locales</strong>
+            <p>Les réponses sont enregistrées uniquement dans votre navigateur.</p>
         </div>
     </aside>
 
     <main class="main-content">
         <section class="page-context">
-            <span class="context-label">DOSSIER PAC 2026</span>
-            <h1>Identifier mes aides PAC</h1>
-            <p>Renseignez les caractéristiques de votre exploitation. L'outil identifie les aides à examiner et estime les montants lorsque les données disponibles le permettent.</p>
+            <span class="context-label">ASSISTANT D'AIDE À LA DÉCISION</span>
+            <h1>Décrire mon exploitation</h1>
+            <p>Renseignez ce que vous connaissez de votre exploitation. L'application calcule ensuite les indicateurs PAC nécessaires : score de diversification, voies écorégime, UGB bovines, qualification JA et aides potentielles.</p>
         </section>
 
         <section id="questionnaire-card" class="workspace-card">
             <div class="workspace-top">
-                <span id="step-counter" class="step-counter">Étape 1</span>
-                <h2 id="question-title"></h2>
-                <p id="question-subtitle" class="question-subtitle"></p>
+                <div>
+                    <span id="step-counter" class="step-counter">Rubrique 1</span>
+                    <h2 id="question-title"></h2>
+                    <p id="question-subtitle" class="question-subtitle"></p>
+                </div>
             </div>
+
             <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+
+            <div id="live-calculation" class="live-calculation" style="display:none"></div>
+
             <div id="questions-container" class="questions-container"></div>
+
             <div class="question-navigation">
                 <button id="previous-button" type="button" class="button button-secondary">← Précédent</button>
                 <div class="navigation-right">
                     <span class="autosave-label">Enregistrement automatique</span>
-                    <button id="next-button" type="button" class="button button-primary">Continuer →</button>
+                    <button id="next-button" type="button" class="button button-primary">Enregistrer et continuer →</button>
                 </div>
             </div>
         </section>
@@ -63,16 +72,16 @@
         <section class="legal-notice">
             <div class="legal-icon">i</div>
             <div>
-                <strong>Outil d'aide à l'orientation</strong>
-                <p>Les résultats produits ne constituent pas une décision administrative d'éligibilité. Les critères et montants définitifs doivent être vérifiés auprès des services compétents et dans les textes applicables à la campagne.</p>
+                <strong>Outil d'orientation, pas décision administrative</strong>
+                <p>Le moteur utilise le guide national PAC 2023–2027, version avril 2026, comme référentiel. Certains montants affichés restent des références 2024 ou 2025 et certains dispositifs dépendent de paramètres locaux ou annuels non fournis par ce guide.</p>
             </div>
         </section>
     </main>
 </div>
 
-<script src="data/aides.js"></script>
-<script src="data/parametres-2026.js"></script>
+<script src="data/referentiel.js"></script>
 <script src="modules/profil.js"></script>
+<script src="modules/indicateurs.js"></script>
 <script src="modules/eligibility.js"></script>
 <script src="modules/calcul.js"></script>
 <script src="modules/questionnaire.js"></script>

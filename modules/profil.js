@@ -1,12 +1,16 @@
 /* =========================================================
-   PROFIL D'EXPLOITATION
+   PROFIL D'EXPLOITATION — V2
+
+   L'agriculteur renseigne des faits sur son exploitation.
+   Les indicateurs PAC sont ensuite calculés automatiquement
+   dans modules/indicateurs.js.
 ========================================================= */
 
-const CLE_STOCKAGE_PROFIL = "assistant_pac_2026_profil_v2";
+const CLE_STOCKAGE_PROFIL = "assistant_pac_profil_v3";
 
 const PROFIL_INITIAL = {
     general: {
-        campagne: 2026,
+        anneeDemande: null,
         territoire: "Hexagone", // Hexagone | Corse | Outre-mer
         region: null,
         departement: null,
@@ -16,8 +20,25 @@ const PROFIL_INITIAL = {
         nombreAssocies: 1
     },
 
-    agriculteurActif: {
-        statut: null // true | false | null
+    statutActif: {
+        /* Personne physique */
+        ageExploitant: null,
+        affilieATEXA: null,
+        retraiteLiquideeApres67: null,
+
+        /* Société avec associé relevant du modèle personne physique */
+        associeAffilieATEXA: null,
+        associeRespecteCritereAgeRetraite: null,
+
+        /* Société sans associé ATEXA */
+        sansAssocieATEXA: null,
+        activiteAgricoleSociete: null,
+        dirigeantsAffiliesATMPAgricole: null,
+        dirigeantsRespectentRetraite: null,
+        dirigeantsDetiennent5Pourcent: null,
+
+        /* Autres personnes morales */
+        autrePersonneMoraleActiviteAgricoleStatutaire: null
     },
 
     surfaces: {
@@ -26,9 +47,34 @@ const PROFIL_INITIAL = {
         terresArables: null,
         prairiesPermanentes: null,
         culturesPermanentes: null,
-        surfaceFourragere: null,
-        pourcentageHaiesSAU: null,
-        pourcentageHaiesTerresArables: null
+        surfaceFourragere: null
+    },
+
+    assolement: {
+        /* Catégories officielles utilisées pour le score écorégime */
+        prairieTemporaire: null,
+        jachereTotale: null,
+        jachereEcoEligible: null,
+        legumineuses: null,
+        cerealesHiver: null,
+        cerealesPrintemps: null,
+        plantesSarclees: null,
+        oleagineuxHiver: null,
+        oleagineuxPrintemps: null,
+        autresCultures: null
+    },
+
+    pratiques: {
+        surfacePPRespectantCritereEcoregime: null,
+        surfaceCPCouverteEcoregime: null,
+        iaeAutresEquivalentHa: null,
+        longueurHaiesTotaleM: null,
+        longueurHaiesTerresArablesM: null,
+        certificationHaiesDurables: null,
+        maecEntretienLigneux: null,
+        agricultureBiologiqueTouteExploitation: null,
+        hveRenovee: null,
+        certificationCE2Plus: null
     },
 
     dpb: {
@@ -42,26 +88,11 @@ const PROFIL_INITIAL = {
     installation: {
         premiereInstallation: null,
         anneeInstallation: null,
-        age: null,
+        ageJA: null,
         diplomeAgricoleNiveau4OuPlus: null,
         diplomeNiveau3OuPlus: null,
         experienceAgricoleMois: null,
         nombreAssociesJAEligibles: null
-    },
-
-    environnement: {
-        agricultureBiologique: null,
-        hveRenovee: null,
-        certificationCE2Plus: null,
-        certificationGestionDurableHaies: null,
-        maecEntretienLigneux: null
-    },
-
-    ecoregime: {
-        pointsDiversification: null,
-        pourcentagePrairiesNonLabourees: null,
-        pourcentageInterRangsCouverts: null,
-        pourcentageIAEEtJacheresSAU: null
     },
 
     productionsVegetales: {
@@ -74,7 +105,6 @@ const PROFIL_INITIAL = {
         legumineusesFourrageres: {
             surface: null,
             zone: null, // plaine_piemont | montagne
-            ugb: null,
             contratEleveur5UGB: null,
             melangeLegumineusesPourcent: null,
             melangeAvecGraminees: null,
@@ -88,12 +118,8 @@ const PROFIL_INITIAL = {
             surface: null,
             contratTransformation: null
         },
-        riz: {
-            surface: null
-        },
-        houblon: {
-            surface: null
-        },
+        riz: { surface: null },
+        houblon: { surface: null },
         semencesGraminees: {
             surface: null,
             contratCulture: null,
@@ -116,14 +142,25 @@ const PROFIL_INITIAL = {
             pechePavie: null,
             tomateIndustrie: null,
             deboucheIndustriel: null
+        },
+        autres: {
+            viticulture: null,
+            oliveraie: null,
+            horticulture: null,
+            ppam: null
         }
     },
 
     bovins: {
         present: null,
-        ugbTotal: null,
-        ugbNiveauSuperieur: null,
-        ugbNiveauBase: null,
+        vachesEligibles: null,
+        malesPlus2Ans: null,
+        males16a24Mois: null,
+        femellesRaceViandePlus2Ans: null,
+        femellesRaceViande16a24Mois: null,
+        autresFemellesPlus2Ans: null,
+        autresFemelles16a24Mois: null,
+        veauxRaceViandeNesGardes90Jours: null,
         animauxDetenus6Mois: null,
         identificationConforme: null
     },
@@ -155,12 +192,17 @@ const PROFIL_INITIAL = {
         identificationConforme: null
     },
 
-    petitsRuminantsCorse: {
-        nombreBrebis: null,
-        nombreChevres: null,
-        sousAOPBrocciu: null,
-        detention100Jours: null,
-        identificationConforme: null
+    autresAnimaux: {
+        /* Valeur optionnelle issue d'un dossier / logiciel si l'exploitation
+           possède des herbivores ou monogastriques dont le guide ne donne pas
+           les coefficients UGB nécessaires au calcul automatique. */
+        ugbDeclareesHorsBovins: null,
+        nombreLapins: null,
+        nombreRuches: null
+    },
+
+    corse: {
+        sousAOPBrocciu: null
     },
 
     ichn: {
@@ -170,13 +212,10 @@ const PROFIL_INITIAL = {
         pourcentageSAUZoneDefavorisee: null,
         siegeEnZoneDefavorisee: null,
         partRevenuAgricolePourcent: null,
-        aideAnimale: null,
-        ugb: null,
         surfacesFourrageresEligibles: null,
+        surfacesVegetalesEligibles: null,
         montantVariableSousZone: null,
-        coefficientModulationChargement: null,
-        aideVegetale: null,
-        surfacesVegetalesEligibles: null
+        coefficientModulationChargement: null
     },
 
     conversionBio: {
@@ -194,7 +233,7 @@ const PROFIL_INITIAL = {
     maec: {
         souhaiteExaminer: null,
         offreLocaleConnue: null,
-        type: null // systeme | localisee | inconnue
+        type: null
     },
 
     assurance: {
@@ -207,14 +246,11 @@ const PROFIL_INITIAL = {
     },
 
     programmesSectoriels: {
-        concerne: null,
-        secteur: null, // vin | apiculture | fruits_legumes | huile_olive | proteines | horticulture | veau_label | lapin | riz
         membreOPAOP: null
     },
 
     regional: {
-        souhaiteExaminer: null,
-        type: null // investissement | installation | maec_forfaitaire | api | prm | gardiennage | betteraves | leader | cooperation | formation | autre
+        projetPrincipal: null
     }
 };
 
@@ -224,7 +260,6 @@ function cloner(objet) {
 
 function fusionnerProfondement(cible, source) {
     if (!source || typeof source !== "object") return cible;
-
     Object.keys(source).forEach(cle => {
         const valeur = source[cle];
         if (
@@ -239,36 +274,59 @@ function fusionnerProfondement(cible, source) {
             cible[cle] = valeur;
         }
     });
-
     return cible;
 }
 
 let profilExploitation = cloner(PROFIL_INITIAL);
 
+function nombreOuZero(valeur) {
+    const nombre = Number(valeur);
+    return Number.isFinite(nombre) ? nombre : 0;
+}
+
+function estRenseigne(valeur) {
+    return valeur !== null && valeur !== undefined && valeur !== "";
+}
+
+function normaliserTexte(texte) {
+    return String(texte || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+}
+
+function lireChemin(objet, chemin) {
+    return chemin.split(".").reduce((courant, cle) => {
+        if (courant === null || courant === undefined) return undefined;
+        return courant[cle];
+    }, objet);
+}
+
+function ecrireChemin(objet, chemin, valeur) {
+    const morceaux = chemin.split(".");
+    const derniere = morceaux.pop();
+    let courant = objet;
+    morceaux.forEach(cle => {
+        if (!courant[cle] || typeof courant[cle] !== "object") courant[cle] = {};
+        courant = courant[cle];
+    });
+    courant[derniere] = valeur;
+}
+
 function lireProfil(chemin) {
-    return chemin.split(".").reduce((objet, cle) => {
-        if (objet === null || objet === undefined) return undefined;
-        return objet[cle];
-    }, profilExploitation);
+    return lireChemin(profilExploitation, chemin);
 }
 
 function modifierProfil(chemin, valeur) {
-    const parties = chemin.split(".");
-    let objet = profilExploitation;
-
-    parties.slice(0, -1).forEach(cle => {
-        if (!objet[cle] || typeof objet[cle] !== "object") objet[cle] = {};
-        objet = objet[cle];
-    });
-
-    objet[parties[parties.length - 1]] = valeur;
+    ecrireChemin(profilExploitation, chemin, valeur);
 }
 
 function sauvegarderProfilLocalement() {
     try {
         localStorage.setItem(CLE_STOCKAGE_PROFIL, JSON.stringify(profilExploitation));
     } catch (erreur) {
-        console.warn("Impossible de sauvegarder le profil localement.", erreur);
+        console.warn("Sauvegarde locale impossible", erreur);
     }
 }
 
@@ -276,10 +334,10 @@ function chargerProfilLocal() {
     try {
         const brut = localStorage.getItem(CLE_STOCKAGE_PROFIL);
         if (!brut) return profilExploitation;
-        const sauvegarde = JSON.parse(brut);
-        profilExploitation = fusionnerProfondement(cloner(PROFIL_INITIAL), sauvegarde);
+        const ancien = JSON.parse(brut);
+        profilExploitation = fusionnerProfondement(cloner(PROFIL_INITIAL), ancien);
     } catch (erreur) {
-        console.warn("Impossible de charger le profil local.", erreur);
+        console.warn("Chargement du profil impossible", erreur);
         profilExploitation = cloner(PROFIL_INITIAL);
     }
     return profilExploitation;
@@ -293,42 +351,25 @@ function reinitialiserProfil() {
     return profilExploitation;
 }
 
-function nombreOuZero(valeur) {
-    const nombre = Number(valeur);
-    return Number.isFinite(nombre) ? nombre : 0;
-}
-
-function estRenseigne(valeur) {
-    return valeur !== null && valeur !== undefined && valeur !== "";
-}
-
-function sommeSurfacesFruitsTransformes() {
-    const p = profilExploitation.productionsVegetales.fruitsTransformes;
-    return [p.pruneEnte, p.ceriseBigarreau, p.poireWilliams, p.pechePavie, p.tomateIndustrie]
-        .reduce((total, valeur) => total + nombreOuZero(valeur), 0);
-}
-
-function calculerSurfaceMaraichage() {
-    const p = profilExploitation.productionsVegetales.maraichage;
-    return nombreOuZero(p.surfaceLegumesFrais) + nombreOuZero(p.surfacePetitsFruitsRouges);
-}
-
-function aDesDPBActives() {
-    return nombreOuZero(profilExploitation.dpb.nombreDPBActives) > 0;
+function estHexagone() {
+    return profilExploitation.general.territoire === "Hexagone";
 }
 
 function estCorse() {
     return profilExploitation.general.territoire === "Corse";
 }
 
-function estHexagone() {
-    return profilExploitation.general.territoire === "Hexagone";
+function aDesDPBActives() {
+    return nombreOuZero(profilExploitation.dpb.nombreDPBActives) > 0;
 }
 
-function normaliserTexte(texte) {
-    return String(texte || "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .trim();
+function calculerSurfaceMaraichage() {
+    const m = profilExploitation.productionsVegetales.maraichage;
+    return nombreOuZero(m.surfaceLegumesFrais) + nombreOuZero(m.surfacePetitsFruitsRouges);
+}
+
+function sommeSurfacesFruitsTransformes() {
+    const f = profilExploitation.productionsVegetales.fruitsTransformes;
+    return [f.pruneEnte, f.ceriseBigarreau, f.poireWilliams, f.pechePavie, f.tomateIndustrie]
+        .reduce((total, valeur) => total + nombreOuZero(valeur), 0);
 }
