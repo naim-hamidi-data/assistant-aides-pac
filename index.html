@@ -53,9 +53,7 @@
             </div>
 
             <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
-
             <div id="live-calculation" class="live-calculation" style="display:none"></div>
-
             <div id="questions-container" class="questions-container"></div>
 
             <div class="question-navigation">
@@ -79,12 +77,51 @@
     </main>
 </div>
 
+<!-- =====================================================
+     CHATBOT MULTILINGUE FR / EN / ES
+====================================================== -->
+<button type="button" id="chatbot-launcher" class="chatbot-launcher" aria-label="Ouvrir l’assistant PAC">
+    <span class="chatbot-launcher-icon">?</span>
+    <span class="chatbot-launcher-label">Assistant PAC</span>
+</button>
+
+<section id="chatbot-panel" class="chatbot-panel" aria-hidden="true" lang="fr">
+    <header class="chatbot-header">
+        <div>
+            <strong id="chatbot-title">Assistant PAC</strong>
+            <span id="chatbot-subtitle">Questions sur les aides PAC</span>
+        </div>
+        <div class="chatbot-header-actions">
+            <button type="button" id="chatbot-clear" class="chatbot-icon-button" title="Effacer la conversation" aria-label="Effacer la conversation">↺</button>
+            <button type="button" id="chatbot-close" class="chatbot-icon-button" title="Fermer" aria-label="Fermer">×</button>
+        </div>
+    </header>
+
+    <div class="chatbot-language-switch" aria-label="Langue du chatbot">
+        <button type="button" data-chat-lang="fr" aria-pressed="true">FR</button>
+        <button type="button" data-chat-lang="en" aria-pressed="false">EN</button>
+        <button type="button" data-chat-lang="es" aria-pressed="false">ES</button>
+    </div>
+
+    <div id="chatbot-messages" class="chatbot-messages" aria-live="polite"></div>
+    <div id="chatbot-typing" class="chatbot-typing" style="display:none"></div>
+
+    <footer class="chatbot-footer">
+        <textarea id="chatbot-input" rows="2" placeholder="Écrivez votre question…"></textarea>
+        <button type="button" id="chatbot-send" class="chatbot-send">Envoyer</button>
+        <p id="chatbot-mode-note" class="chatbot-mode-note"></p>
+    </footer>
+</section>
+
 <script src="data/referentiel.js"></script>
+<script src="data/chatbot-i18n.js"></script>
+<script src="data/chatbot-config.js"></script>
 <script src="modules/profil.js"></script>
 <script src="modules/indicateurs.js"></script>
 <script src="modules/eligibility.js"></script>
 <script src="modules/calcul.js"></script>
 <script src="modules/questionnaire.js"></script>
+<script src="modules/chatbot.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
