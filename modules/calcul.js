@@ -21,7 +21,8 @@ function arrondirMontant(montant) {
 
 function formaterMontant(montant) {
     if (montant === null || montant === undefined || !Number.isFinite(Number(montant))) return "—";
-    return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(Number(montant));
+    const locale = typeof simulatorLocale === "function" ? simulatorLocale() : "fr-FR";
+    return new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(Number(montant));
 }
 
 function creerCalcul({ id, nom = null, montant = null, type = TYPE_CALCUL.NON_CALCULABLE, anneeReference = null, formule = null, donnees = {}, avertissements = [], details = {} }) {

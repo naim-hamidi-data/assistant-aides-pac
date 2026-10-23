@@ -346,7 +346,7 @@ function creerChampQuestion(question) {
     if (question.type === "heading") {
         const bloc = document.createElement("div");
         bloc.className = "form-section-heading";
-        bloc.innerHTML = `<h3>${question.titre}</h3>${question.texte ? `<p>${question.texte}</p>` : ""}`;
+        bloc.innerHTML = `<h3>${simT(question.titre)}</h3>${question.texte ? `<p>${simT(question.texte)}</p>` : ""}`;
         return bloc;
     }
 
@@ -358,12 +358,12 @@ function creerChampQuestion(question) {
     zoneLibelle.className = "question-copy";
     const label = document.createElement("label");
     label.className = "question-label";
-    label.textContent = question.label;
+    label.textContent = simT(question.label);
     zoneLibelle.appendChild(label);
     if (question.aide) {
         const aide = document.createElement("p");
         aide.className = "question-help";
-        aide.textContent = question.aide;
+        aide.textContent = simT(question.aide);
         zoneLibelle.appendChild(aide);
     }
     wrapper.appendChild(zoneLibelle);
@@ -379,7 +379,7 @@ function creerChampQuestion(question) {
             bouton.type = "button";
             bouton.className = "answer-button";
             if (valeur === option.valeur) bouton.classList.add("selected");
-            bouton.textContent = option.texte;
+            bouton.textContent = simT(option.texte);
             bouton.addEventListener("click", () => {
                 modifierProfil(question.chemin, option.valeur);
                 sauvegarderProfilLocalement();
@@ -393,7 +393,7 @@ function creerChampQuestion(question) {
         (question.options || []).forEach(option => {
             const opt = document.createElement("option");
             opt.value = option.valeur;
-            opt.textContent = option.texte;
+            opt.textContent = simT(option.texte);
             if (String(valeur ?? "") === String(option.valeur)) opt.selected = true;
             select.appendChild(opt);
         });
@@ -410,7 +410,7 @@ function creerChampQuestion(question) {
         const input = document.createElement("input");
         input.type = question.type;
         input.value = afficherValeur(valeur);
-        if (question.placeholder) input.placeholder = question.placeholder;
+        if (question.placeholder) input.placeholder = simT(question.placeholder);
         if (question.min !== undefined) input.min = question.min;
         if (question.max !== undefined) input.max = question.max;
         if (question.step !== undefined) input.step = question.step;
@@ -439,48 +439,60 @@ function creerChampQuestion(question) {
 ========================================================= */
 
 function texteNiveau(n) {
-    return n === "bio" ? "niveau spécifique AB" : n === "superieur" ? "niveau supérieur" : n === "base" ? "niveau de base" : "non atteint";
+    return simNiveau(n || "aucun");
 }
 
 function htmlPanneauActif() {
     const a = calculerAgriculteurActif();
-    if (a.statut === true) return `<div class="live-result ok"><strong>Agriculteur actif : critère initialement compatible</strong><span>${a.raisons.join(" ")}</span></div>`;
-    if (a.statut === false) return `<div class="live-result no"><strong>Agriculteur actif : critère non rempli avec les réponses actuelles</strong><span>${a.raisons.join(" ")}</span></div>`;
-    return `<div class="live-result pending"><strong>Agriculteur actif : à déterminer</strong><span>À compléter : ${a.manquants.join(" · ")}</span></div>`;
+    const raisons = (a.raisons || []).map(simMessage).join(" ");
+    const manquants = (a.manquants || []).map(simMessage).join(" · ");
+    if (a.statut === true) return `<div class="live-result ok"><strong>${simL("Agriculteur actif : critère initialement compatible", "Active farmer: initial criteria compatible", "Agricultor activo: criterios iniciales compatibles")}</strong><span>${raisons}</span></div>`;
+    if (a.statut === false) return `<div class="live-result no"><strong>${simL("Agriculteur actif : critère non rempli avec les réponses actuelles", "Active farmer: criterion not met with the current answers", "Agricultor activo: criterio no cumplido con las respuestas actuales")}</strong><span>${raisons}</span></div>`;
+    return `<div class="live-result pending"><strong>${simL("Agriculteur actif : à déterminer", "Active farmer: to be determined", "Agricultor activo: por determinar")}</strong><span>${simT("À compléter")}: ${manquants}</span></div>`;
 }
 
 function htmlPanneauAssolement() {
     const s = calculerScoreDiversification();
     const classe = s.complet ? (s.points >= 5 ? "ok" : s.points >= 4 ? "warn" : "no") : "pending";
-    const details = s.details.map(d => `${d.libelle} +${d.points}`).join(" · ") || "Aucun point calculé pour l'instant";
-    return `<div class="live-result ${classe}"><strong>Score de diversification calculé : ${s.points} point(s)</strong><span>${s.complet ? details : `Répartition à compléter. Somme saisie : ${Math.round(s.sommeAssolement * 100) / 100} ha pour ${Math.round(s.terresArables * 100) / 100} ha de TA.`}</span></div>`;
+    const details = s.details.map(d => `${simMessage(d.libelle)} +${d.points}`).join(" · ") || simL("Aucun point calculé pour l'instant", "No points calculated yet", "Todavía no se han calculado puntos");
+    const incomplete = simL(
+        `Répartition à compléter. Somme saisie : ${Math.round(s.sommeAssolement * 100) / 100} ha pour ${Math.round(s.terresArables * 100) / 100} ha de TA.`,
+        `Breakdown to complete. Entered total: ${Math.round(s.sommeAssolement * 100) / 100} ha for ${Math.round(s.terresArables * 100) / 100} ha of arable land.`,
+        `Distribución por completar. Total introducido: ${Math.round(s.sommeAssolement * 100) / 100} ha para ${Math.round(s.terresArables * 100) / 100} ha de tierras de cultivo.`
+    );
+    return `<div class="live-result ${classe}"><strong>${simL("Score de diversification calculé", "Calculated diversification score", "Puntuación de diversificación calculada")}: ${s.points} ${simL("point(s)", "point(s)", "punto(s)")}</strong><span>${s.complet ? details : incomplete}</span></div>`;
 }
 
 function htmlPanneauElevage() {
     const u = calculerUGBBovines();
     const autres = nombreOuZero(profilExploitation.autresAnimaux.ugbDeclareesHorsBovins);
-    return `<div class="live-result info"><strong>UGB bovines calculées : ${Math.round(u.total * 10) / 10}</strong><span>Niveau supérieur brut : ${Math.round(u.niveauSuperieurBrut * 10) / 10} UGB · niveau base brut : ${Math.round(u.niveauBaseBrut * 10) / 10} UGB${autres > 0 ? ` · autres UGB déclarées : ${autres}` : ""}</span></div>`;
+    const extra = autres > 0 ? simL(` · autres UGB déclarées : ${autres}`, ` · other declared LU: ${autres}`, ` · otras UGM declaradas: ${autres}`) : "";
+    return `<div class="live-result info"><strong>${simT("UGB bovines calculées")}: ${Math.round(u.total * 10) / 10}</strong><span>${simL("Niveau supérieur brut", "Gross higher-level LU", "UGM brutas de nivel superior")}: ${Math.round(u.niveauSuperieurBrut * 10) / 10} · ${simL("niveau base brut", "gross basic-level LU", "UGM brutas de nivel básico")}: ${Math.round(u.niveauBaseBrut * 10) / 10}${extra}</span></div>`;
 }
 
 function htmlPanneauEcoregime() {
     const d = calculerDiagnosticEcoregime();
     const score = d.scoreDiversification;
     const lignes = [];
-    if (d.voies.pratiques.eligible) lignes.push(`Pratiques : ${texteNiveau(d.voies.pratiques.niveau)}`);
-    else if (d.voies.pratiques.manquants?.length) lignes.push("Pratiques : informations à compléter");
-    else lignes.push("Pratiques : niveau de base non atteint");
-    if (d.voies.certification.eligible) lignes.push(`Certification : ${texteNiveau(d.voies.certification.niveau)}`);
-    if (d.voies.biodiversite.eligible) lignes.push(`Biodiversité : ${texteNiveau(d.voies.biodiversite.niveau)}`);
-    else if (d.voies.biodiversite.iae?.ratioSAU !== null && d.voies.biodiversite.iae?.donneesComplete) lignes.push(`Biodiversité : ${Math.round(d.voies.biodiversite.iae.ratioSAU * 1000) / 10} % IAE/jachères`);
-    const meilleur = d.meilleureVoie ? `Meilleure voie détectée : ${d.meilleureVoie.voie} — ${texteNiveau(d.meilleureVoie.niveau)}` : "Aucune voie confirmée pour l'instant";
-    return `<div class="live-result ${d.meilleureVoie ? "ok" : "pending"}"><strong>${meilleur}</strong><span>Score diversification : ${score.points} point(s). ${lignes.join(" · ")}${d.bonusHaies.possible ? " · Bonus haies potentiellement accessible." : ""}</span></div>`;
+    if (d.voies.pratiques.eligible) lignes.push(`${simL("Pratiques", "Practices", "Prácticas")}: ${texteNiveau(d.voies.pratiques.niveau)}`);
+    else if (d.voies.pratiques.manquants?.length) lignes.push(simL("Pratiques : informations à compléter", "Practices: information to complete", "Prácticas: información por completar"));
+    else lignes.push(simL("Pratiques : niveau de base non atteint", "Practices: basic level not reached", "Prácticas: nivel básico no alcanzado"));
+    if (d.voies.certification.eligible) lignes.push(`${simL("Certification", "Certification", "Certificación")}: ${texteNiveau(d.voies.certification.niveau)}`);
+    if (d.voies.biodiversite.eligible) lignes.push(`${simL("Biodiversité", "Biodiversity", "Biodiversidad")}: ${texteNiveau(d.voies.biodiversite.niveau)}`);
+    else if (d.voies.biodiversite.iae?.ratioSAU !== null && d.voies.biodiversite.iae?.donneesComplete) lignes.push(`${simL("Biodiversité", "Biodiversity", "Biodiversidad")}: ${Math.round(d.voies.biodiversite.iae.ratioSAU * 1000) / 10} % IAE`);
+    const meilleur = d.meilleureVoie
+        ? simL(`Meilleure voie détectée : ${simVoieName(d.meilleureVoie.voie)} — ${texteNiveau(d.meilleureVoie.niveau)}`, `Best route detected: ${simVoieName(d.meilleureVoie.voie)} — ${texteNiveau(d.meilleureVoie.niveau)}`, `Mejor vía detectada: ${simVoieName(d.meilleureVoie.voie)} — ${texteNiveau(d.meilleureVoie.niveau)}`)
+        : simL("Aucune voie confirmée pour l'instant", "No route confirmed yet", "Ninguna vía confirmada por el momento");
+    const bonus = d.bonusHaies.possible ? simL(" · Bonus haies potentiellement accessible.", " · Hedge bonus potentially available.", " · Complemento por setos potencialmente accesible.") : "";
+    return `<div class="live-result ${d.meilleureVoie ? "ok" : "pending"}"><strong>${meilleur}</strong><span>${simT("Score diversification")}: ${score.points} ${simL("point(s)", "point(s)", "punto(s)")}. ${lignes.join(" · ")}${bonus}</span></div>`;
 }
 
 function htmlPanneauSynthese() {
     const d = calculerIndicateursPAC();
-    const eco = d.ecoregime.meilleureVoie ? `${d.ecoregime.meilleureVoie.voie} / ${texteNiveau(d.ecoregime.meilleureVoie.niveau)}` : "à compléter";
-    const actif = d.agriculteurActif.statut === true ? "compatible" : d.agriculteurActif.statut === false ? "non" : "à compléter";
-    return `<div class="live-result info"><strong>Pré-diagnostic automatique</strong><span>Agriculteur actif : ${actif} · Écorégime : ${eco} · UGB bovines : ${Math.round(d.bovins.total * 10) / 10} · Secteurs détectés : ${d.secteursPresents.length ? d.secteursPresents.join(", ") : "aucun"}</span></div>`;
+    const eco = d.ecoregime.meilleureVoie ? `${simVoieName(d.ecoregime.meilleureVoie.voie)} / ${texteNiveau(d.ecoregime.meilleureVoie.niveau)}` : simT("À compléter").toLowerCase();
+    const actif = d.agriculteurActif.statut === true ? simT("Compatible").toLowerCase() : d.agriculteurActif.statut === false ? simT("Non").toLowerCase() : simT("À compléter").toLowerCase();
+    const secteurs = d.secteursPresents.length ? d.secteursPresents.map(simSectorName).join(", ") : simL("aucun", "none", "ninguno");
+    return `<div class="live-result info"><strong>${simL("Pré-diagnostic automatique", "Automatic pre-diagnosis", "Prediagnóstico automático")}</strong><span>${simT("Agriculteur actif")}: ${actif} · ${simT("Écorégime")}: ${eco} · ${simT("UGB bovines calculées")}: ${Math.round(d.bovins.total * 10) / 10} · ${simL("Secteurs détectés", "Detected sectors", "Sectores detectados")}: ${secteurs}</span></div>`;
 }
 
 function mettreAJourPanneau() {
@@ -510,7 +522,7 @@ function afficherNavigationLaterale() {
         bouton.className = "sidebar-step";
         if (!affichageResultats && index === etapeQuestionnaire) bouton.classList.add("active");
         if (index < etapeQuestionnaire || affichageResultats) bouton.classList.add("completed");
-        bouton.innerHTML = `<span class="step-indicator">${index < etapeQuestionnaire || affichageResultats ? "✓" : index + 1}</span><span>${etape.titre}</span>`;
+        bouton.innerHTML = `<span class="step-indicator">${index < etapeQuestionnaire || affichageResultats ? "✓" : index + 1}</span><span>${simT(etape.titre)}</span>`;
         bouton.addEventListener("click", () => {
             affichageResultats = false;
             etapeQuestionnaire = index;
@@ -524,7 +536,7 @@ function afficherNavigationLaterale() {
     const resultat = document.createElement("button");
     resultat.type = "button";
     resultat.className = `sidebar-step ${affichageResultats ? "active" : ""}`;
-    resultat.innerHTML = `<span class="step-indicator">${affichageResultats ? "✓" : ETAPES_QUESTIONNAIRE.length + 1}</span><span>Mon diagnostic PAC</span>`;
+    resultat.innerHTML = `<span class="step-indicator">${affichageResultats ? "✓" : ETAPES_QUESTIONNAIRE.length + 1}</span><span>${simT("Mon diagnostic PAC")}</span>`;
     if (!affichageResultats) {
         resultat.disabled = true;
         resultat.setAttribute("aria-disabled", "true");
@@ -536,8 +548,8 @@ function afficherEtape() {
     affichageResultats = false;
     const etape = ETAPES_QUESTIONNAIRE[etapeQuestionnaire];
     afficherNavigationLaterale();
-    document.getElementById("question-title").textContent = etape.titre;
-    document.getElementById("question-subtitle").textContent = etape.sousTitre;
+    document.getElementById("question-title").textContent = simT(etape.titre);
+    document.getElementById("question-subtitle").textContent = simT(etape.sousTitre);
 
     const zone = document.getElementById("questions-container");
     zone.innerHTML = "";
@@ -550,9 +562,15 @@ function afficherEtape() {
 
     const pourcentage = ((etapeQuestionnaire + 1) / ETAPES_QUESTIONNAIRE.length) * 100;
     document.getElementById("progress-bar").style.width = `${pourcentage}%`;
-    document.getElementById("step-counter").textContent = `Rubrique ${etapeQuestionnaire + 1} sur ${ETAPES_QUESTIONNAIRE.length}`;
+    document.getElementById("step-counter").textContent = simL(
+        `Rubrique ${etapeQuestionnaire + 1} sur ${ETAPES_QUESTIONNAIRE.length}`,
+        `Section ${etapeQuestionnaire + 1} of ${ETAPES_QUESTIONNAIRE.length}`,
+        `Sección ${etapeQuestionnaire + 1} de ${ETAPES_QUESTIONNAIRE.length}`
+    );
     document.getElementById("previous-button").style.display = etapeQuestionnaire === 0 ? "none" : "inline-flex";
-    document.getElementById("next-button").textContent = etapeQuestionnaire === ETAPES_QUESTIONNAIRE.length - 1 ? "Calculer mon diagnostic" : "Enregistrer et continuer →";
+    document.getElementById("next-button").textContent = etapeQuestionnaire === ETAPES_QUESTIONNAIRE.length - 1
+        ? simT("Calculer mon diagnostic")
+        : `${simT("Enregistrer et continuer")} →`;
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -578,7 +596,7 @@ function etapePrecedente() {
 ========================================================= */
 
 function libelleTypeCalcul(type) {
-    return {
+    const libelle = {
         donnee_exploitation: "Donnée réelle de l'exploitation",
         reference_2024: "Estimation avec référence 2024",
         reference_2025: "Estimation avec référence 2025",
@@ -586,23 +604,24 @@ function libelleTypeCalcul(type) {
         partiel: "Calcul partiel / à confirmer",
         non_calculable: "Montant non calculable avec les données disponibles"
     }[type] || type;
+    return simT(libelle);
 }
 
 function creerCarteResultat(resultat, calcul) {
     const carte = document.createElement("article");
     carte.className = `result-card ${resultat.statut === STATUT_AIDE.A_EXAMINER ? "success" : "warning"}`;
     const montant = calcul && calcul.montant !== null
-        ? `<div class="result-amount">${calcul.montantFormate}</div><div class="result-reference">${libelleTypeCalcul(calcul.type)}</div>`
+        ? `<div class="result-amount">${formaterMontant(calcul.montant)}</div><div class="result-reference">${libelleTypeCalcul(calcul.type)}</div>`
         : `<div class="result-reference">${calcul ? libelleTypeCalcul(calcul.type) : ""}</div>`;
-    const raisons = resultat.raisons.length ? `<div class="result-details"><strong>Pourquoi cette aide apparaît ?</strong>${resultat.raisons.map(r => `<p>✓ ${r}</p>`).join("")}</div>` : "";
-    const manquants = resultat.informationsManquantes.length ? `<div class="result-details"><strong>Informations à compléter</strong>${resultat.informationsManquantes.map(r => `<p>• ${r}</p>`).join("")}</div>` : "";
+    const raisons = resultat.raisons.length ? `<div class="result-details"><strong>${simT("Pourquoi cette aide apparaît ?")}</strong>${resultat.raisons.map(r => `<p>✓ ${simMessage(r)}</p>`).join("")}</div>` : "";
+    const manquants = resultat.informationsManquantes.length ? `<div class="result-details"><strong>${simT("Informations à compléter")}</strong>${resultat.informationsManquantes.map(r => `<p>• ${simMessage(r)}</p>`).join("")}</div>` : "";
     const avertissements = [...new Set([...(resultat.verifications || []), ...((calcul && calcul.avertissements) || [])])];
-    const warnings = avertissements.length ? `<div class="result-warnings">${avertissements.map(a => `<p>${a}</p>`).join("")}</div>` : "";
+    const warnings = avertissements.length ? `<div class="result-warnings">${avertissements.map(a => `<p>${simMessage(a)}</p>`).join("")}</div>` : "";
     carte.innerHTML = `
-        <div class="result-status">${resultat.statut === STATUT_AIDE.A_EXAMINER ? "À EXAMINER" : "À COMPLÉTER"}</div>
-        <h3>${resultat.nom}</h3>
+        <div class="result-status">${resultat.statut === STATUT_AIDE.A_EXAMINER ? simT("À EXAMINER") : simT("À COMPLÉTER")}</div>
+        <h3>${simAidName(resultat.id, resultat.nom)}</h3>
         ${montant}${raisons}${manquants}${warnings}
-        <div class="result-source">Source : ${resultat.source}</div>`;
+        <div class="result-source">${simT("Source")} : ${simSource(resultat.source)}</div>`;
     return carte;
 }
 
@@ -612,10 +631,10 @@ function afficherBlocDiagnostic(zone) {
     const bloc = document.createElement("section");
     bloc.className = "diagnostic-summary";
     bloc.innerHTML = `
-        <div><span>Agriculteur actif</span><strong>${d.agriculteurActif.statut === true ? "Compatible" : d.agriculteurActif.statut === false ? "Non" : "À compléter"}</strong></div>
-        <div><span>Score diversification</span><strong>${eco.scoreDiversification.points} point(s)</strong></div>
-        <div><span>Écorégime</span><strong>${eco.meilleureVoie ? `${eco.meilleureVoie.voie} · ${texteNiveau(eco.meilleureVoie.niveau)}` : "À compléter / non atteint"}</strong></div>
-        <div><span>UGB bovines calculées</span><strong>${Math.round(d.bovins.total * 10) / 10}</strong></div>`;
+        <div><span>${simT("Agriculteur actif")}</span><strong>${d.agriculteurActif.statut === true ? simT("Compatible") : d.agriculteurActif.statut === false ? simT("Non") : simT("À compléter")}</strong></div>
+        <div><span>${simT("Score diversification")}</span><strong>${eco.scoreDiversification.points} ${simL("point(s)", "point(s)", "punto(s)")}</strong></div>
+        <div><span>${simT("Écorégime")}</span><strong>${eco.meilleureVoie ? `${simVoieName(eco.meilleureVoie.voie)} · ${texteNiveau(eco.meilleureVoie.niveau)}` : simT("À compléter / non atteint")}</strong></div>
+        <div><span>${simT("UGB bovines calculées")}</span><strong>${Math.round(d.bovins.total * 10) / 10}</strong></div>`;
     zone.appendChild(bloc);
 }
 
@@ -634,13 +653,13 @@ function afficherSyntheseMontants(zone) {
     valeurs.forEach(([libelle, montant]) => {
         const card = document.createElement("div");
         card.className = "summary-card";
-        card.innerHTML = `<span>${libelle}</span><strong>${formaterMontant(montant)}</strong>`;
+        card.innerHTML = `<span>${simT(libelle)}</span><strong>${formaterMontant(montant)}</strong>`;
         grille.appendChild(card);
     });
     zone.appendChild(grille);
     const note = document.createElement("p");
     note.className = "summary-note";
-    note.textContent = "Ces blocs correspondent à des natures de montants différentes. Les références 2024/2025 ne doivent pas être présentées comme des taux courants ni additionnées automatiquement à des montants définitifs.";
+    note.textContent = simT("Ces blocs correspondent à des natures de montants différentes. Les références 2024/2025 ne doivent pas être présentées comme des taux courants ni additionnées automatiquement à des montants définitifs.");
     zone.appendChild(note);
 }
 
@@ -659,9 +678,14 @@ function afficherResultatsQuestionnaire() {
     const incompletes = orientations.filter(r => r.statut === STATUT_AIDE.INFORMATIONS_MANQUANTES);
     const nonRetenues = orientations.filter(r => r.statut === STATUT_AIDE.NON_RETENUE);
 
+    const countTitle = simL(
+        `${aExaminer.length} dispositif${aExaminer.length > 1 ? "s" : ""} à examiner`,
+        `${aExaminer.length} scheme${aExaminer.length === 1 ? "" : "s"} to review`,
+        `${aExaminer.length} ayuda${aExaminer.length === 1 ? "" : "s"} a revisar`
+    );
     const header = document.createElement("div");
     header.className = "results-header";
-    header.innerHTML = `<span class="context-label">MON DIAGNOSTIC PAC</span><h2>${aExaminer.length} dispositif${aExaminer.length > 1 ? "s" : ""} à examiner</h2><p>Le moteur a déduit les résultats à partir de la description de l'exploitation. Vous n'avez pas eu à choisir vous-même une voie écorégime, un nombre de points ou des UGB bovines.</p>`;
+    header.innerHTML = `<span class="context-label">${simT("MON DIAGNOSTIC PAC")}</span><h2>${countTitle}</h2><p>${simL("Le moteur a déduit les résultats à partir de la description de l'exploitation. Vous n'avez pas eu à choisir vous-même une voie écorégime, un nombre de points ou des UGB bovines.", "The engine derived the results from the description of your farm. You did not have to choose an eco-scheme route, a points score or cattle livestock units yourself.", "El motor ha deducido los resultados a partir de la descripción de su explotación. No ha tenido que elegir por sí mismo una vía de ecorregímen, una puntuación ni las UGM bovinas.")}</p>`;
     zone.appendChild(header);
 
     afficherBlocDiagnostic(zone);
@@ -672,7 +696,7 @@ function afficherResultatsQuestionnaire() {
     if (incompletes.length) {
         const titre = document.createElement("h3");
         titre.className = "results-section-title";
-        titre.textContent = "Informations utiles à compléter";
+        titre.textContent = simT("Informations utiles à compléter");
         zone.appendChild(titre);
         incompletes.forEach(resultat => zone.appendChild(creerCarteResultat(resultat, calculs.find(c => c.id === resultat.id))));
     }
@@ -680,11 +704,16 @@ function afficherResultatsQuestionnaire() {
     if (nonRetenues.length) {
         const details = document.createElement("details");
         details.className = "not-retained";
-        details.innerHTML = `<summary>${nonRetenues.length} dispositif(s) non retenu(s) avec les informations actuelles</summary>`;
+        const summaryText = simL(
+            `${nonRetenues.length} dispositif(s) non retenu(s) avec les informations actuelles`,
+            `${nonRetenues.length} scheme(s) not retained with the current information`,
+            `${nonRetenues.length} ayuda(s) no retenida(s) con la información actual`
+        );
+        details.innerHTML = `<summary>${summaryText}</summary>`;
         nonRetenues.forEach(resultat => {
             const ligne = document.createElement("div");
             ligne.className = "not-retained-item";
-            ligne.innerHTML = `<strong>${resultat.nom}</strong>${resultat.verifications.length ? `<span>${resultat.verifications[0]}</span>` : ""}`;
+            ligne.innerHTML = `<strong>${simAidName(resultat.id, resultat.nom)}</strong>${resultat.verifications.length ? `<span>${simMessage(resultat.verifications[0])}</span>` : ""}`;
             details.appendChild(ligne);
         });
         zone.appendChild(details);
@@ -692,7 +721,7 @@ function afficherResultatsQuestionnaire() {
 
     const actions = document.createElement("div");
     actions.className = "results-actions";
-    actions.innerHTML = `<button type="button" class="button button-secondary" id="edit-results-button">Modifier mon dossier</button><button type="button" class="button button-secondary" id="reset-results-button">Recommencer à zéro</button>`;
+    actions.innerHTML = `<button type="button" class="button button-secondary" id="edit-results-button">${simT("Modifier mon dossier")}</button><button type="button" class="button button-secondary" id="reset-results-button">${simT("Recommencer à zéro")}</button>`;
     zone.appendChild(actions);
     document.getElementById("edit-results-button").addEventListener("click", () => {
         affichageResultats = false;
@@ -721,7 +750,7 @@ function initialiserQuestionnaire() {
     if (suivant) suivant.addEventListener("click", etapeSuivante);
     if (precedent) precedent.addEventListener("click", etapePrecedente);
     if (reset) reset.addEventListener("click", () => {
-        if (!confirm("Effacer toutes les réponses enregistrées dans ce navigateur ?")) return;
+        if (!confirm(simL("Effacer toutes les réponses enregistrées dans ce navigateur ?", "Delete all answers saved in this browser?", "¿Borrar todas las respuestas guardadas en este navegador?"))) return;
         reinitialiserProfil();
         etapeQuestionnaire = 0;
         affichageResultats = false;

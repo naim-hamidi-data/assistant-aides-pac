@@ -62,6 +62,31 @@ button, input, select, textarea { font: inherit; }
 .header-title { display: flex; flex-direction: column; }
 .header-title strong { font-size: 17px; }
 .header-title span { font-size: 12px; opacity: .78; margin-top: 2px; }
+
+.site-language-switch {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 5px;
+    background: rgba(255,255,255,.08);
+}
+.site-language-switch button {
+    min-width: 38px;
+    min-height: 32px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    color: rgba(255,255,255,.82);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.site-language-switch button:hover { background: rgba(255,255,255,.12); color: white; }
+.site-language-switch button.active { background: white; color: var(--green-900); }
+
 .reference-badge {
     padding: 7px 11px;
     border: 1px solid rgba(255,255,255,.25);
@@ -263,9 +288,11 @@ input:focus, select:focus { border-color: var(--green-700); box-shadow: 0 0 0 2p
 }
 
 @media (max-width: 680px) {
-    .app-header { min-height: 64px; padding: 10px 14px; }
-    .header-right { display: none; }
+    .app-header { min-height: 64px; padding: 10px 14px; gap: 10px; }
+    .header-right { display: flex; gap: 6px; }
+    .reference-badge, .header-button { display: none; }
     .header-title span { display: none; }
+    .site-language-switch button { min-width: 34px; padding: 0 6px; }
     .page-context h1 { font-size: 25px; }
     .question-item { grid-template-columns: 1fr; gap: 9px; padding: 17px 0; }
     .questions-container, .workspace-top { padding-left: 20px; padding-right: 20px; }

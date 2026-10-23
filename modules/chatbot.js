@@ -29,8 +29,10 @@ function normaliserTexteChatbot(texte) {
 }
 
 function chargerEtatChatbot() {
+    const siteLanguage = typeof getSimulatorLanguage === "function" ? getSimulatorLanguage() : null;
     const savedLanguage = localStorage.getItem(CHATBOT_STORAGE_LANGUAGE);
-    if (CHATBOT_LANGUAGES.includes(savedLanguage)) chatbotLanguage = savedLanguage;
+    if (CHATBOT_LANGUAGES.includes(siteLanguage)) chatbotLanguage = siteLanguage;
+    else if (CHATBOT_LANGUAGES.includes(savedLanguage)) chatbotLanguage = savedLanguage;
 
     try {
         const history = JSON.parse(localStorage.getItem(CHATBOT_STORAGE_HISTORY) || "[]");
@@ -48,6 +50,9 @@ function setChatbotLanguage(lang) {
     if (!CHATBOT_LANGUAGES.includes(lang)) return;
     chatbotLanguage = lang;
     localStorage.setItem(CHATBOT_STORAGE_LANGUAGE, lang);
+    if (typeof getSimulatorLanguage === "function" && typeof setSimulatorLanguage === "function" && getSimulatorLanguage() !== lang) {
+        setSimulatorLanguage(lang);
+    }
     mettreAJourTextesChatbot();
     afficherHistoriqueChatbot();
 }
@@ -130,7 +135,7 @@ function reponseDiagnosticChatbot() {
     let texte = aExaminer.length
         ? chatbotT("diagnosticIntro", {
             count: aExaminer.length,
-            list: aExaminer.slice(0, 8).map(item => item.nom).join(", ")
+            list: aExaminer.slice(0, 8).map(item => typeof simAidName === "function" ? simAidName(item.id, item.nom) : item.nom).join(", ")
         })
         : chatbotT("diagnosticNone");
 
@@ -141,7 +146,7 @@ function reponseDiagnosticChatbot() {
     if (calculables.length) {
         const liste = calculables.map(item => {
             const montant = item.montantFormate || (typeof formaterMontant === "function" ? formaterMontant(item.montant) : `${Math.round(item.montant * 100) / 100} €`);
-            return `${item.nom || item.id}: ${montant}`;
+            return `${typeof simAidName === "function" ? simAidName(item.id, item.nom || item.id) : (item.nom || item.id)}: ${montant}`;
         }).join(" · ");
         texte += `\n\n${chatbotT("amountIntro", { list: liste })}`;
     } else {
@@ -262,6 +267,7 @@ function mettreAJourTextesChatbot() {
     const clear = document.getElementById("chatbot-clear");
     const close = document.getElementById("chatbot-close");
     const launcher = document.getElementById("chatbot-launcher");
+    const launcherLabel = launcher?.querySelector(".chatbot-launcher-label");
     const note = document.getElementById("chatbot-mode-note");
 
     if (title) title.textContent = chatbotT("title");
@@ -271,6 +277,9 @@ function mettreAJourTextesChatbot() {
     if (clear) clear.title = chatbotT("clear");
     if (close) close.title = chatbotT("close");
     if (launcher) launcher.setAttribute("aria-label", chatbotT("open"));
+    if (launcherLabel) launcherLabel.textContent = chatbotT("title");
+    if (clear) clear.setAttribute("aria-label", chatbotT("clear"));
+    if (close) close.setAttribute("aria-label", chatbotT("close"));
     if (note) note.textContent = chatbotT("localMode");
 
     document.querySelectorAll("[data-chat-lang]").forEach(button => {
@@ -356,5 +365,14 @@ function initialiserChatbot() {
             event.preventDefault();
             envoyerMessageChatbot();
         }
+    });
+
+    window.addEventListener("assistantpac:languagechange", event => {
+        const lang = event.detail?.language;
+        if (!CHATBOT_LANGUAGES.includes(lang)) return;
+        chatbotLanguage = lang;
+        localStorage.setItem(CHATBOT_STORAGE_LANGUAGE, lang);
+        mettreAJourTextesChatbot();
+        afficherHistoriqueChatbot();
     });
 }

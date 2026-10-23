@@ -13,34 +13,39 @@
     <div class="header-left">
         <div class="logo-block">PAC</div>
         <div class="header-title">
-            <strong>Assistant PAC</strong>
-            <span>Diagnostic et estimation des aides</span>
+            <strong data-sim-text="Assistant PAC">Assistant PAC</strong>
+            <span data-sim-text="Diagnostic et estimation des aides">Diagnostic et estimation des aides</span>
         </div>
     </div>
     <div class="header-right">
-        <span class="reference-badge">Référentiel PAC 2023–2027</span>
-        <button type="button" class="header-button" id="reset-button">Réinitialiser</button>
+        <div class="site-language-switch" aria-label="Langue / Language / Idioma">
+            <button type="button" data-site-lang="fr" aria-pressed="true">FR</button>
+            <button type="button" data-site-lang="en" aria-pressed="false">EN</button>
+            <button type="button" data-site-lang="es" aria-pressed="false">ES</button>
+        </div>
+        <span class="reference-badge" data-sim-text="Référentiel PAC 2023–2027">Référentiel PAC 2023–2027</span>
+        <button type="button" class="header-button" id="reset-button" data-sim-text="Réinitialiser">Réinitialiser</button>
     </div>
 </header>
 
 <div class="app-layout">
     <aside class="sidebar">
         <div class="sidebar-heading">
-            <span class="sidebar-label">MON DOSSIER</span>
-            <strong>Exploitation agricole</strong>
+            <span class="sidebar-label" data-sim-text="MON DOSSIER">MON DOSSIER</span>
+            <strong data-sim-text="Exploitation agricole">Exploitation agricole</strong>
         </div>
         <nav id="sidebar-steps" class="sidebar-steps"></nav>
         <div class="sidebar-info">
-            <strong>Données locales</strong>
-            <p>Les réponses sont enregistrées uniquement dans votre navigateur.</p>
+            <strong data-sim-text="Données locales">Données locales</strong>
+            <p data-sim-text="Les réponses sont enregistrées uniquement dans votre navigateur.">Les réponses sont enregistrées uniquement dans votre navigateur.</p>
         </div>
     </aside>
 
     <main class="main-content">
         <section class="page-context">
-            <span class="context-label">ASSISTANT D'AIDE À LA DÉCISION</span>
-            <h1>Décrire mon exploitation</h1>
-            <p>Renseignez ce que vous connaissez de votre exploitation. L'application calcule ensuite les indicateurs PAC nécessaires : score de diversification, voies écorégime, UGB bovines, qualification JA et aides potentielles.</p>
+            <span class="context-label" data-sim-text="ASSISTANT D'AIDE À LA DÉCISION">ASSISTANT D'AIDE À LA DÉCISION</span>
+            <h1 data-sim-text="Décrire mon exploitation">Décrire mon exploitation</h1>
+            <p data-sim-text="Renseignez ce que vous connaissez de votre exploitation. L'application calcule ensuite les indicateurs PAC nécessaires : score de diversification, voies écorégime, UGB bovines, qualification JA et aides potentielles.">Renseignez ce que vous connaissez de votre exploitation. L'application calcule ensuite les indicateurs PAC nécessaires : score de diversification, voies écorégime, UGB bovines, qualification JA et aides potentielles.</p>
         </section>
 
         <section id="questionnaire-card" class="workspace-card">
@@ -57,9 +62,9 @@
             <div id="questions-container" class="questions-container"></div>
 
             <div class="question-navigation">
-                <button id="previous-button" type="button" class="button button-secondary">← Précédent</button>
+                <button id="previous-button" type="button" class="button button-secondary"><span aria-hidden="true">←</span> <span data-sim-text="Précédent">Précédent</span></button>
                 <div class="navigation-right">
-                    <span class="autosave-label">Enregistrement automatique</span>
+                    <span class="autosave-label" data-sim-text="Enregistrement automatique">Enregistrement automatique</span>
                     <button id="next-button" type="button" class="button button-primary">Enregistrer et continuer →</button>
                 </div>
             </div>
@@ -70,8 +75,8 @@
         <section class="legal-notice">
             <div class="legal-icon">i</div>
             <div>
-                <strong>Outil d'orientation, pas décision administrative</strong>
-                <p>Le moteur utilise le guide national PAC 2023–2027, version avril 2026, comme référentiel. Certains montants affichés restent des références 2024 ou 2025 et certains dispositifs dépendent de paramètres locaux ou annuels non fournis par ce guide.</p>
+                <strong data-sim-text="Outil d'orientation, pas décision administrative">Outil d'orientation, pas décision administrative</strong>
+                <p data-sim-text="Le moteur utilise le guide national PAC 2023–2027, version avril 2026, comme référentiel. Certains montants affichés restent des références 2024 ou 2025 et certains dispositifs dépendent de paramètres locaux ou annuels non fournis par ce guide.">Le moteur utilise le guide national PAC 2023–2027, version avril 2026, comme référentiel. Certains montants affichés restent des références 2024 ou 2025 et certains dispositifs dépendent de paramètres locaux ou annuels non fournis par ce guide.</p>
             </div>
         </section>
     </main>
@@ -113,6 +118,9 @@
     </footer>
 </section>
 
+<script src="data/simulator-i18n-en.js"></script>
+<script src="data/simulator-i18n-es.js"></script>
+<script src="data/simulator-i18n.js"></script>
 <script src="data/referentiel.js"></script>
 <script src="data/chatbot-i18n.js"></script>
 <script src="data/chatbot-config.js"></script>
